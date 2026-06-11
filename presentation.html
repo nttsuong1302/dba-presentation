@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Le Métier de DBA — Suong NGUYEN</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
+<style>
+:root {
+  --dark:#1E1B4B; --light:#F4F3FF; --purple:#6D28D9; --purple-l:#EDE9FE; --purple-m:#A78BFA;
+  --pink:#DB2777; --pink-l:#FCE7F3; --yellow:#F59E0B; --yellow-l:#FEF3C7;
+  --green:#059669; --green-l:#D1FAE5; --teal:#0E7490; --teal-l:#CFFAFE;
+  --orange:#EA580C; --orange-l:#FFEDD5; --muted:#6B7280; --white:#fff;
+}
+.reveal-viewport, .reveal { background:var(--light); }
+.reveal .slides section { font-family:'Outfit',sans-serif; text-align:left; padding:20px 30px; }
+.reveal section.dark { color:var(--white); }
+.reveal h1,.reveal h2 { font-family:'Outfit',sans-serif; text-transform:none; }
+.reveal h2 { font-size:1.35em; font-weight:900; color:var(--dark); margin-bottom:.5em; }
+.reveal section.dark h2 { color:var(--white); }
+.reveal p,.reveal li,.reveal td { font-family:'Outfit',sans-serif; }
+code,.mono { font-family:'Space Mono',monospace; }
+
+.banner { border-radius:12px; padding:12px 18px; font-weight:700; font-size:.62em; color:var(--white); margin-bottom:16px; }
+.banner.purple{background:var(--purple);} .banner.pink{background:var(--pink);} .banner.teal{background:var(--teal);} .banner.orange{background:var(--orange);} .banner.gray{background:#374151;} .banner.darkbg{background:var(--dark);}
+.banner.lightyellow{background:var(--yellow-l);color:var(--dark);border:1px solid var(--yellow);font-weight:600;}
+.banner.lightpurple{background:var(--purple-l);color:var(--purple);border:1px solid var(--purple-m);font-weight:600;}
+.banner.lightteal{background:var(--teal-l);color:var(--teal);border:1px solid #67E8F9;font-weight:600;}
+
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+.grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+
+.card { border-radius:12px; padding:12px 14px; font-size:.52em; line-height:1.45; border:2px solid; box-shadow:0 4px 14px rgba(0,0,0,.08); }
+.card h4 { font-size:1.25em; margin:0 0 4px; font-weight:700; }
+.card .ic { font-size:1.9em; }
+.card.cpurple{background:var(--purple-l);border-color:var(--purple-m);} .card.cpurple h4{color:var(--purple);}
+.card.cpink{background:var(--pink-l);border-color:#F9A8D4;} .card.cpink h4{color:var(--pink);}
+.card.cgreen{background:var(--green-l);border-color:#6EE7B7;} .card.cgreen h4{color:var(--green);}
+.card.cyellow{background:var(--yellow-l);border-color:#FCD34D;} .card.cyellow h4{color:#B45309;}
+.card.cteal{background:var(--teal-l);border-color:#67E8F9;} .card.cteal h4{color:var(--teal);}
+.card.corange{background:var(--orange-l);border-color:#FCA5A5;} .card.corange h4{color:var(--orange);}
+.card.cwhite{background:var(--white);border-color:var(--purple-m);} .card.cwhite h4{color:var(--purple);}
+
+.codebox { background:var(--dark); border-radius:10px; padding:12px 16px; font-family:'Space Mono',monospace; font-size:.45em; line-height:1.5; color:#86EFAC; white-space:pre; overflow-x:auto; }
+.codebox.violet { color:#C4B5FD; }
+.codebox .hd { color:#9CA3AF; font-family:'Outfit',sans-serif; margin-bottom:6px; }
+
+table.mini { border-collapse:collapse; width:100%; font-size:.5em; }
+table.mini th { background:var(--purple); color:var(--white); padding:5px 8px; }
+table.mini td { padding:5px 8px; color:var(--dark); border:1px solid #DDD6FE; }
+table.mini tr:nth-child(odd) td { background:#F5F3FF; }
+
+/* QCM & questions */
+.qcm-opt { display:block; width:100%; text-align:left; margin:8px 0; padding:12px 16px; border-radius:10px; border:2px solid #4C4680; background:rgba(255,255,255,.06); color:var(--white); font-family:'Outfit',sans-serif; font-size:.55em; cursor:pointer; transition:all .2s; }
+.qcm-opt:hover { border-color:var(--purple-m); transform:translateX(4px); }
+.qcm-opt.good { background:var(--green); border-color:var(--green); font-weight:700; }
+.qcm-opt.bad { background:var(--pink); border-color:var(--pink); opacity:.7; }
+.hintlist { background:rgba(255,255,255,.07); border:1px dashed var(--purple-m); border-radius:12px; padding:14px 20px; font-size:.55em; color:#C4B5FD; line-height:1.9; }
+.qbadge { display:inline-block; background:var(--yellow); color:var(--dark); border-radius:20px; padding:6px 20px; font-weight:900; font-size:.5em; letter-spacing:2px; margin-bottom:14px; }
+
+.footnote { font-size:.5em; color:var(--muted); font-style:italic; margin-top:14px; }
+.smallrow { font-size:.52em; padding:8px 12px; border-radius:8px; margin:6px 0; }
+ul.compact { font-size:.55em; line-height:1.7; }
+.bigletter { width:90px; height:90px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5em; font-weight:900; color:var(--white); margin:0 auto; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- 1 ── TITRE -->
+<section class="dark" data-background-color="#1E1B4B" style="text-align:center">
+  <p style="margin-top:40px"><span style="background:var(--pink);color:#fff;padding:6px 22px;border-radius:4px;font-size:.45em;font-weight:700;letter-spacing:3px">MÉTIER &amp; TECHNOLOGIES</span></p>
+  <p style="color:#C4B5FD;font-size:1em;margin:18px 0 0">Le Métier de</p>
+  <h1 style="font-size:3.2em;font-weight:900;color:#fff;margin:0">DBA</h1>
+  <p style="color:#6D6A8F;font-size:.5em;margin-top:50px">Suong NGUYEN &nbsp;•&nbsp; 2026</p>
+</section>
+
+<!-- 2 ── QUESTION OUVERTE : DBA ? -->
+<section class="dark" data-background-color="#312E81" style="text-align:center">
+  <p class="qbadge">💬 À TOI DE RÉPONDRE !</p>
+  <p style="font-size:2em;margin:0">🤔</p>
+  <h2 style="font-size:1.2em">À ton avis, que signifient les 3 lettres « DBA » ?</h2>
+  <div class="hintlist" style="text-align:left;max-width:80%;margin:20px auto 0">
+    <b style="color:var(--yellow)">💡 Pistes pour t'aider :</b><br/>
+    ▸ C'est un métier de l'informatique<br/>
+    ▸ Le « D » et le « B » parlent de là où on range des informations<br/>
+    ▸ Le « A » désigne la personne qui s'en occupe
+  </div>
+</section>
+
+<!-- 3 ── RÉPONSE DBA -->
+<section class="dark" data-background-color="#1E1B4B" style="text-align:center">
+  <h2 style="color:var(--yellow);text-align:center">🎉 La réponse !</h2>
+  <div class="grid3" style="margin-top:20px">
+    <div><div class="bigletter" style="background:var(--purple)">D</div><p style="font-size:.6em;font-weight:700;margin:10px 0 2px">Data(base)</p><p style="font-size:.45em;color:#C4B5FD;margin:0">Base de données</p></div>
+    <div><div class="bigletter" style="background:var(--pink)">B</div><p style="font-size:.6em;font-weight:700;margin:10px 0 2px">Base</p><p style="font-size:.45em;color:#C4B5FD;margin:0">L'endroit où sont rangées les données</p></div>
+    <div><div class="bigletter" style="background:var(--teal)">A</div><p style="font-size:.6em;font-weight:700;margin:10px 0 2px">Administrator</p><p style="font-size:.45em;color:#C4B5FD;margin:0">La personne qui administre</p></div>
+  </div>
+  <p style="background:var(--purple);border-radius:12px;padding:14px;font-size:.8em;font-weight:900;margin-top:26px">DBA = Administrateur de Bases de Données</p>
+  <p style="font-size:.55em;color:#C4B5FD;font-style:italic">Mais qu'est-ce que ça veut dire concrètement ? C'est ce qu'on va découvrir ensemble ! 🚀</p>
+</section>
+
+<!-- 4 ── QUI SUIS-JE -->
+<section>
+  <h2>Qui suis-je ? 👋</h2>
+  <div style="display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:center">
+    <div style="width:110px;height:110px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:2em">👩‍💻</div>
+    <div>
+      <div class="card cpurple" style="margin-bottom:10px"><h4>🛡️ DBA — Administratrice de Bases de Données</h4>Je veille chaque jour sur les bases de données : disponibilité, sécurité, performance.</div>
+      <div class="card cteal" style="margin-bottom:10px"><h4>👥 Membre de la squad SGBD</h4>Je travaille en équipe dans la squad SGBD (Système de Gestion de Bases de Données).</div>
+      <div class="card cpink"><h4>🤖 Casquette Automatisation</h4>Ma spécialité : automatiser les tâches répétitives pour gagner du temps et éviter les erreurs.</div>
+    </div>
+  </div>
+  <p class="banner darkbg" style="margin-top:16px">🎯 Aujourd'hui, je vais te faire découvrir mon métier et pourquoi l'automatisation est devenue indispensable !</p>
+</section>
+
+<!-- 5 ── PROGRAMME -->
+<section>
+  <h2>Au Programme Aujourd'hui 🗺️</h2>
+  <div class="grid2">
+    <div class="card cpurple" style="text-align:center">
+      <div style="width:60px;height:60px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.8em;font-weight:900;margin:6px auto">1</div>
+      <h4 style="font-size:1.4em">Découverte du métier</h4>
+      <div style="text-align:left;margin-top:8px">▸ Les données, les bases de données, SQL<br/>▸ Le métier de DBA et ses missions<br/>▸ L'automatisation et l'industrialisation<br/>▸ Des questions interactives tout au long ! 💬</div>
+    </div>
+    <div class="card cpink" style="text-align:center">
+      <div style="width:60px;height:60px;border-radius:50%;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.8em;font-weight:900;margin:6px auto">2</div>
+      <h4 style="font-size:1.4em">Jeu de simulation 🎮</h4>
+      <div style="text-align:left;margin-top:8px">▸ Mets-toi dans la peau d'une DBA !<br/>▸ Gère tes bases de données au quotidien<br/>▸ Découvre la magie de l'automatisation<br/>▸ <a href="jeu.html">À toi de jouer !</a> 🚀</div>
+    </div>
+  </div>
+  <p class="banner darkbg" style="margin-top:16px">🙋 N'hésite pas à poser des questions à tout moment — c'est fait pour ça !</p>
+</section>
+
+<!-- 6 ── DONNÉE -->
+<section>
+  <h2>C'est quoi une Donnée ?</h2>
+  <p class="banner purple">Une donnée = une information brute, enregistrée et utilisable par un ordinateur.</p>
+  <div class="grid3">
+    <div class="card cpurple" style="text-align:center"><div class="ic">🔢</div><h4>Données numériques</h4><span class="mono">Note : 17/20<br/>Prix : 12,50 €<br/>Âge : 16 ans</span></div>
+    <div class="card cyellow" style="text-align:center"><div class="ic">📝</div><h4>Données textuelles</h4><span class="mono">Nom : Alice Dupont<br/>Ville : Paris<br/>Email : alice@...</span></div>
+    <div class="card cgreen" style="text-align:center"><div class="ic">🗓️</div><h4>Données temporelles</h4><span class="mono">Date : 11/06/2026<br/>Heure : 08h30<br/>Durée : 2h</span></div>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <p class="banner darkbg" style="margin:0">🌍 2,5 milliards de Go de données sont créées chaque jour dans le monde !</p>
+    <p class="banner lightyellow" style="margin:0">📱 Chaque like, achat, connexion, message = des données stockées quelque part.</p>
+  </div>
+</section>
+
+<!-- 7 ── QUESTION OUVERTE : DONNÉES QUOTIDIEN -->
+<section class="dark" data-background-color="#312E81" style="text-align:center">
+  <p class="qbadge">💬 À TOI DE RÉPONDRE !</p>
+  <p style="font-size:2em;margin:0">🤔</p>
+  <h2 style="font-size:1.1em">Quelles données génères-tu dans ta vie quotidienne ?</h2>
+  <div class="hintlist" style="text-align:left;max-width:85%;margin:20px auto 0">
+    <b style="color:var(--yellow)">💡 Pistes pour t'aider :</b><br/>
+    ▸ Pense à ton téléphone : que fais-tu chaque jour avec ?<br/>
+    ▸ Quand tu achètes quelque chose, qu'est-ce qui est enregistré ?<br/>
+    ▸ Et au lycée : quelles informations l'école garde-t-elle sur toi ?
+  </div>
+</section>
+
+<!-- 8 ── BDD -->
+<section>
+  <h2>C'est quoi une Base de Données ?</h2>
+  <p class="banner purple">Une BDD = un endroit organisé pour stocker, retrouver et manipuler des données très rapidement.</p>
+  <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:14px">
+    <div>
+      <div class="card cwhite" style="margin-bottom:8px"><h4>📦 Un conteneur organisé</h4>Les données sont rangées en tableaux (tables) avec des lignes et colonnes</div>
+      <div class="card cwhite" style="margin-bottom:8px"><h4>🔗 Des tables liées</h4>Les tables se parlent entre elles : un élève a plusieurs notes, plusieurs cours...</div>
+      <div class="card cwhite"><h4>⚡ Recherche ultra-rapide</h4>Retrouver 1 info parmi 10 millions en moins d'1 milliseconde</div>
+      <p class="banner lightyellow" style="margin-top:10px">📱 Facebook : 100 milliards de requêtes SQL par jour sur ses BDD !</p>
+    </div>
+    <div>
+      <p style="font-size:.5em;font-weight:700;color:var(--purple);text-align:center;margin:0 0 4px">Table : Élèves 🎓</p>
+      <table class="mini"><tr><th>Nom</th><th>Classe</th><th>Note</th></tr>
+        <tr><td>Alice</td><td>2nde A</td><td>17</td></tr><tr><td>Bob</td><td>2nde B</td><td>14</td></tr>
+        <tr><td>Clara</td><td>2nde A</td><td>18</td></tr><tr><td>David</td><td>2nde C</td><td>12</td></tr></table>
+      <p class="banner lightpurple" style="margin-top:10px;text-align:center">MySQL · PostgreSQL<br/>Oracle · SQL Server<br/>MongoDB · Redis</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9 ── MOTEUR SGBD -->
+<section>
+  <h2>Le Moteur de Bases de Données (SGBD)</h2>
+  <p class="banner purple">⚙️ Le moteur (SGBD) = le logiciel qui fait vivre la base de données : il stocke, lit, écrit et protège les données.</p>
+  <div class="grid2">
+    <div>
+      <div class="card cyellow" style="margin-bottom:10px"><h4>🚗 Métaphore</h4>La base de données, c'est la voiture entière. Le moteur (SGBD), c'est ce qui la fait avancer : sans lui, les données sont juste des fichiers immobiles sur un disque.</div>
+      <div class="card cteal"><h4>🍕 Les distributions, c'est comme la pizza !</h4>Une recette de base (la pâte = PostgreSQL), et chacun ajoute sa garniture : plus de sécurité, du support 24/7, une version cloud... Même cœur, saveurs différentes !</div>
+    </div>
+    <div class="card cwhite">
+      <h4>🐘 Les distributions PostgreSQL</h4>
+      <b>PostgreSQL Community</b> — la version originale, gratuite et open-source<br/>
+      <b>EDB Postgres Advanced</b> — version entreprise : sécurité et support renforcés<br/>
+      <b>Amazon Aurora / RDS</b> — version cloud gérée par Amazon (AWS)<br/>
+      <b>Azure Database for PostgreSQL</b> — version cloud gérée par Microsoft<br/>
+      <b>Google AlloyDB / Cloud SQL</b> — version cloud gérée par Google
+    </div>
+  </div>
+</section>
+
+<!-- 10 ── STRUCTURE BDD -->
+<section>
+  <h2>Comment est Organisée une Base de Données ?</h2>
+  <p class="banner pink">🏠 Métaphore : une BDD est comme une grande maison bien rangée — chaque élément a un rôle précis !</p>
+  <div class="grid2">
+    <div class="card cpurple"><h4>🏠 Schéma</h4>Les étages de la maison : regroupent les tables par thème (ventes, RH...)</div>
+    <div class="card cteal"><h4>🗄️ Table</h4>Les armoires : chaque table range un type d'information (élèves, notes...)</div>
+    <div class="card cgreen"><h4>📋 Colonne</h4>Les tiroirs étiquetés : nom, classe, note — chaque colonne a un type précis</div>
+    <div class="card cyellow"><h4>🔖 Index</h4>L'index d'un livre : trouver une info sans parcourir toutes les pages</div>
+    <div class="card corange"><h4>🤖 Procédure</h4>Le robot ménager : une suite d'actions enregistrée, exécutable à la demande</div>
+    <div class="card cpink"><h4>🧩 Extension</h4>Les modules en plus : ajoutent des super-pouvoirs (cartes, recherche...)</div>
+  </div>
+  <p class="banner darkbg" style="margin-top:12px">🎯 Pourquoi cette structure ? Sans organisation, retrouver une donnée = chercher une chaussette dans une maison en désordre. Avec : tout est rangé, rapide et fiable !</p>
+</section>
+
+<!-- 11 ── SYSTÈME -->
+<section>
+  <h2>Et Sous le Capot ? La BDD Côté Système</h2>
+  <p class="banner teal">🍳 Métaphore : la BDD fonctionne comme une cuisine de restaurant — chaque zone a son rôle !</p>
+  <div class="grid2">
+    <div class="card cpurple"><h4>💽 Le disque (file system)</h4><b>= Le garde-manger 🥫</b><br/>Les données sont stockées dans des fichiers sur le disque : durables, mais lents d'accès. Tout y survit même quand on éteint le serveur.</div>
+    <div class="card cpink"><h4>⚡ La mémoire (RAM)</h4><b>= Le plan de travail du cuisinier 🔪</b><br/>Ultra-rapide mais limitée : on y garde les données « chaudes » utilisées souvent. Tout disparaît si on éteint !</div>
+  </div>
+  <div class="card cwhite" style="margin-top:12px"><h4>🔄 Le va-et-vient permanent</h4>Quand on demande une donnée : le moteur regarde d'abord en mémoire (le plan de travail). Si elle n'y est pas, il va la chercher sur le disque (le garde-manger) — plus lent ! Le travail du DBA : régler la mémoire pour que les données les plus demandées soient toujours « à portée de main ».</div>
+  <p class="banner lightyellow" style="margin-top:10px">💡 RAM = 1000× plus rapide que le disque, mais 10× plus chère — tout l'art est de bien doser les deux !</p>
+</section>
+
+<!-- 12 ── SQL -->
+<section>
+  <h2>SQL — Parler avec les Données</h2>
+  <p class="banner purple">🗣️ Comment interagir avec une BDD ? On lui parle dans son langage : SQL (Structured Query Language).</p>
+  <div class="grid2">
+    <div>
+      <p class="banner lightyellow">💡 SQL est comme une question posée à un bibliothécaire : « Donne-moi tous les livres de science-fiction publiés après 2020. »</p>
+      <div class="smallrow" style="background:#fff;border:1px solid #DDD6FE"><b class="mono" style="background:var(--teal);color:#fff;padding:2px 8px;border-radius:4px">SELECT</b> &nbsp;Lire des données — <i>« Montre-moi les notes d'Alice »</i></div>
+      <div class="smallrow" style="background:#fff;border:1px solid #DDD6FE"><b class="mono" style="background:var(--green);color:#fff;padding:2px 8px;border-radius:4px">INSERT</b> &nbsp;Ajouter — <i>« Ajoute le nouvel élève Karim »</i></div>
+      <div class="smallrow" style="background:#fff;border:1px solid #DDD6FE"><b class="mono" style="background:var(--orange);color:#fff;padding:2px 8px;border-radius:4px">UPDATE</b> &nbsp;Modifier — <i>« Corrige la note de Bob : 15 »</i></div>
+      <div class="smallrow" style="background:#fff;border:1px solid #DDD6FE"><b class="mono" style="background:var(--pink);color:#fff;padding:2px 8px;border-radius:4px">DELETE</b> &nbsp;Supprimer — <i>« Retire l'élève parti du lycée »</i></div>
+    </div>
+    <div>
+      <div class="codebox"><span class="hd">Exemple de requête SQL</span>SELECT nom, note
+FROM eleves
+WHERE classe = '2nde A'
+ORDER BY note DESC;</div>
+      <p style="font-size:.5em;font-weight:700;color:var(--purple);margin:10px 0 4px">Résultat ⬇️</p>
+      <table class="mini"><tr><th>nom</th><th>note</th></tr><tr><td>Clara</td><td>18</td></tr><tr><td>Alice</td><td>17</td></tr></table>
+    </div>
+  </div>
+</section>
+
+<!-- 13 ── QCM BDD -->
+<section class="dark" data-background-color="#312E81" data-qcm="0"></section>
+
+<!-- 14 ── DBA GARDIEN -->
+<section>
+  <h2>Le DBA — Gardien des Données</h2>
+  <div style="display:grid;grid-template-columns:110px 1fr;gap:18px;align-items:center;margin-bottom:14px">
+    <div style="width:100px;height:100px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:1.8em">🛡️</div>
+    <div><b style="font-size:.75em">Database Administrator</b><p style="font-size:.52em;color:var(--muted);margin:4px 0 0">Expert technique dont la mission est de s'assurer que les bases de données fonctionnent, sont sécurisées, performantes et disponibles 24h/24.</p></div>
+  </div>
+  <div class="grid4">
+    <div class="card cpurple" style="text-align:center"><div class="ic">⚙️</div><h4>Technique</h4>Installe et configure les systèmes</div>
+    <div class="card cpink" style="text-align:center"><div class="ic">🔒</div><h4>Sécurité</h4>Protège les données des entreprises</div>
+    <div class="card cgreen" style="text-align:center"><div class="ic">📈</div><h4>Performance</h4>Optimise la rapidité des requêtes</div>
+    <div class="card cyellow" style="text-align:center"><div class="ic">🔁</div><h4>Disponibilité</h4>Évite les pannes et pertes de données</div>
+  </div>
+  <p class="banner darkbg" style="margin-top:14px">🎯 Le DBA travaille avec des développeurs, des sysadmins, des équipes métier et la direction.</p>
+</section>
+
+<!-- 15 ── COMPÉTENCES -->
+<section>
+  <h2>Les Compétences pour Devenir DBA</h2>
+  <div class="grid2">
+    <div>
+      <p class="banner purple" style="margin-bottom:8px">🧠 Compétences techniques</p>
+      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">🗄️ SQL et les moteurs de BDD (PostgreSQL, Oracle...)</div>
+      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">🐧 Linux : la plupart des serveurs tournent dessus</div>
+      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">📜 Scripting : Bash, Python pour automatiser</div>
+      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">☁️ Le Cloud : AWS, Azure, GCP</div>
+      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">🌐 Réseaux et sécurité informatique</div>
+    </div>
+    <div>
+      <p class="banner pink" style="margin-bottom:8px">💖 Qualités humaines</p>
+      <div class="smallrow" style="background:#fff;border:1px solid #F9A8D4">🔍 Rigueur : une erreur peut coûter très cher</div>
+      <div class="smallrow" style="background:#fff;border:1px solid #F9A8D4">🧩 Esprit logique : diagnostiquer les pannes</div>
+      <div class="smallrow" style="background:#fff;border:1px solid #F9A8D4">😌 Sang-froid : gérer les incidents sans paniquer</div>
+      <div class="smallrow" style="background:#fff;border:1px solid #F9A8D4">💬 Communication : expliquer aux équipes</div>
+      <div class="smallrow" style="background:#fff;border:1px solid #F9A8D4">📚 Curiosité : la techno évolue sans cesse !</div>
+    </div>
+  </div>
+  <p class="banner darkbg" style="margin-top:12px">🎓 Parcours type : Bac scientifique ou techno → BTS/BUT/Licence informatique → spécialisation BDD. Et beaucoup de pratique !</p>
+</section>
+
+<!-- 16 ── QCM RÔLE DBA -->
+<section class="dark" data-background-color="#312E81" data-qcm="1"></section>
+
+<!-- 17-19 ── MISSIONS (générées en JS) -->
+<section data-missions="0"></section>
+<section data-missions="1"></section>
+<section data-missions="2"></section>
+
+<!-- 20 ── QCM LENTEUR -->
+<section class="dark" data-background-color="#312E81" data-qcm="2"></section>
+
+<!-- 21 ── POURQUOI AUTOMATISER -->
+<section class="dark" data-background-color="#1E1B4B">
+  <h2>Pourquoi Automatiser la Gestion des BDD ?</h2>
+  <div class="grid3">
+    <div style="border:2px solid var(--pink);border-radius:12px;padding:14px;text-align:center;background:rgba(255,255,255,.06)"><p style="font-size:1.6em;font-weight:900;color:var(--pink);margin:0">×100</p><p style="font-size:.5em;margin:6px 0 0">Hier : 5 BDD à gérer.<br/>Aujourd'hui : des centaines !</p></div>
+    <div style="border:2px solid var(--yellow);border-radius:12px;padding:14px;text-align:center;background:rgba(255,255,255,.06)"><p style="font-size:1.6em;font-weight:900;color:var(--yellow);margin:0">24/7</p><p style="font-size:.5em;margin:6px 0 0">Les applications ne s'arrêtent jamais — les BDD non plus</p></div>
+    <div style="border:2px solid #67E8F9;border-radius:12px;padding:14px;text-align:center;background:rgba(255,255,255,.06)"><p style="font-size:1.6em;font-weight:900;color:#67E8F9;margin:0">0</p><p style="font-size:.5em;margin:6px 0 0">Erreur humaine tolérée : une faute = panne ou perte de données</p></div>
+  </div>
+  <p class="banner purple" style="margin-top:18px">⚠️ Impossible de gérer des centaines de BDD à la main ! Le DBA moderne doit automatiser pour suivre le rythme — chaque tâche manuelle répétée est une perte de temps et un risque d'erreur.</p>
+  <p style="text-align:center;font-size:.65em;font-style:italic;color:#C4B5FD">Mais d'où vient ce changement d'échelle ? Remontons le temps... ⏪</p>
+</section>
+
+<!-- 22 ── VAGUES -->
+<section class="dark" data-background-color="#1E1B4B">
+  <h2>Les Vagues Informatiques</h2>
+  <p style="font-size:.55em;color:#C4B5FD;margin-top:-10px">À chaque vague, de nouveaux défis — le DBA doit évoluer !</p>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px">
+    <div style="border:2px solid #7C3AED;border-radius:10px;overflow:hidden;text-align:center"><p style="background:#7C3AED;font-size:.5em;font-weight:700;margin:0;padding:5px">1960s</p><p style="font-size:1.4em;margin:10px 0 4px">🖥️</p><p style="font-size:.5em;font-weight:700;margin:0 0 12px">Mainframe</p></div>
+    <div style="border:2px solid #2563EB;border-radius:10px;overflow:hidden;text-align:center"><p style="background:#2563EB;font-size:.5em;font-weight:700;margin:0;padding:5px">1980s</p><p style="font-size:1.4em;margin:10px 0 4px">💻</p><p style="font-size:.5em;font-weight:700;margin:0 0 12px">PC &amp; Réseau</p></div>
+    <div style="border:2px solid #059669;border-radius:10px;overflow:hidden;text-align:center"><p style="background:#059669;font-size:.5em;font-weight:700;margin:0;padding:5px">2000s</p><p style="font-size:1.4em;margin:10px 0 4px">⚙️</p><p style="font-size:.5em;font-weight:700;margin:0 0 12px">Virtualisation</p></div>
+    <div style="border:2px solid #EA580C;border-radius:10px;overflow:hidden;text-align:center"><p style="background:#EA580C;font-size:.5em;font-weight:700;margin:0;padding:5px">2015</p><p style="font-size:1.4em;margin:10px 0 4px">☁️</p><p style="font-size:.5em;font-weight:700;margin:0 0 12px">Cloud</p></div>
+    <div style="border:2px solid var(--pink);border-radius:10px;overflow:hidden;text-align:center"><p style="background:var(--pink);font-size:.5em;font-weight:700;margin:0;padding:5px">2020+</p><p style="font-size:1.4em;margin:10px 0 4px">🤖</p><p style="font-size:.5em;font-weight:700;margin:0 0 12px">Automatisation</p></div>
+  </div>
+  <p class="banner purple" style="margin-top:18px;text-align:center">🎯 Aujourd'hui : automatiser = survie ! Un DBA gère des centaines de BDD simultanément.</p>
+  <p class="banner lightyellow" style="text-align:center">💬 Question : C'est quoi concrètement le Cloud ?</p>
+</section>
+
+<!-- 23 ── CLOUD -->
+<section>
+  <h2>Le Cloud : Louer au Lieu d'Acheter</h2>
+  <p class="banner purple">💡 Analogie : Le Cloud c'est comme Netflix — tu utilises des ressources sans posséder l'infrastructure !</p>
+  <div class="grid2">
+    <div>
+      <p style="background:#FEE2E2;color:#991B1B;font-weight:700;font-size:.55em;text-align:center;padding:8px;border-radius:8px;margin:0 0 6px">❌ AVANT — Serveurs physiques</p>
+      <div class="smallrow" style="background:#FFF1F2;color:#7F1D1D">💸 Acheter des serveurs très chers</div>
+      <div class="smallrow" style="background:#FFF1F2;color:#7F1D1D">🏢 Les stocker dans vos locaux</div>
+      <div class="smallrow" style="background:#FFF1F2;color:#7F1D1D">👩‍💻 Embaucher personnel 24h/24</div>
+      <div class="smallrow" style="background:#FFF1F2;color:#7F1D1D">😰 Payer même si inutilisé</div>
+    </div>
+    <div>
+      <p style="background:var(--green-l);color:#065F46;font-weight:700;font-size:.55em;text-align:center;padding:8px;border-radius:8px;margin:0 0 6px">✅ APRÈS — Cloud</p>
+      <div class="smallrow" style="background:#ECFDF5;color:#064E3B">🌐 Louer les ressources à la demande</div>
+      <div class="smallrow" style="background:#ECFDF5;color:#064E3B">☁️ Tout chez AWS, Azure, Google...</div>
+      <div class="smallrow" style="background:#ECFDF5;color:#064E3B">🔧 Le fournisseur gère la maintenance</div>
+      <div class="smallrow" style="background:#ECFDF5;color:#064E3B">💰 On paie uniquement ce qu'on utilise</div>
+    </div>
+  </div>
+  <p class="banner lightteal" style="margin-top:12px">☁️ AWS RDS, Azure SQL, Google Cloud SQL : des services Cloud spécialement conçus pour les bases de données.</p>
+</section>
+
+<!-- 24 ── QCM CLOUD -->
+<section class="dark" data-background-color="#312E81" data-qcm="3"></section>
+
+<!-- 25 ── TÂCHES RÉPÉTITIVES -->
+<section>
+  <h2>Les Tâches Répétitives du DBA</h2>
+  <p class="banner orange">Ces tâches reviennent chaque jour, chaque semaine, sur des dizaines de serveurs... Parfaites pour l'automatisation !</p>
+  <table class="mini" style="font-size:.48em">
+    <tr><th>Mission DBA</th><th>Tâche répétitive</th><th>Fréquence</th><th>Serveurs</th></tr>
+    <tr><td>💾 <b>Sauvegarde</b></td><td>Lancer les backups de toutes les BDD</td><td>Chaque nuit</td><td><b>50+</b></td></tr>
+    <tr><td>📊 <b>Supervision</b></td><td>Vérifier l'espace disque sur les serveurs</td><td>Chaque heure</td><td><b>100+</b></td></tr>
+    <tr><td>🔐 <b>Accès</b></td><td>Créer le même profil droits : nouvel employé</td><td>Chaque semaine</td><td><b>20+</b></td></tr>
+    <tr><td>🏗️ <b>Installation</b></td><td>Déployer une nouvelle BDD (même config)</td><td>Par projet</td><td><b>10+</b></td></tr>
+    <tr><td>🚀 <b>Optimisation</b></td><td>Analyser les rapports de performance SQL</td><td>Chaque matin</td><td><b>30+</b></td></tr>
+    <tr><td>🔄 <b>Migration</b></td><td>Appliquer les patches de sécurité</td><td>Mensuelle</td><td><b>200+</b></td></tr>
+  </table>
+</section>
+
+<!-- 26 ── QCM TÂCHES -->
+<section class="dark" data-background-color="#312E81" data-qcm="4"></section>
+
+<!-- 27 ── SCRIPTS -->
+<section>
+  <h2>Automatiser : l'Ancienne Méthode (Scripts)</h2>
+  <p class="banner gray">Avant les outils modernes, les DBA écrivaient des scripts Shell (Bash) ou Python pour automatiser leurs tâches.</p>
+  <div class="grid2">
+    <div class="codebox"><span class="hd">backup_db.sh — Script de sauvegarde</span>#!/bin/bash
+# Sauvegarde PostgreSQL
+DATE=$(date +%Y%m%d)
+DB_NAME="production"
+
+pg_dump $DB_NAME \
+  > /backup/db_$DATE.sql
+
+echo "Backup terminé : $DATE"</div>
+    <div>
+      <div class="card cgreen" style="margin-bottom:8px"><h4>✅ Avantages</h4>▸ Simple à écrire rapidement<br/>▸ Flexible, personnalisable<br/>▸ Gratuit, aucun outil externe</div>
+      <div class="card" style="background:#FEE2E2;border-color:#FECACA"><h4 style="color:#991B1B">❌ Inconvénients</h4>▸ Fragile : casse si l'environnement change<br/>▸ Pas idempotent (exécuter 2× = problème)<br/>▸ Un script = un seul serveur à la fois<br/>▸ Difficile à maintenir avec le temps</div>
+    </div>
+  </div>
+  <p class="banner lightyellow" style="margin-top:12px"><b style="color:var(--orange)">💡 Idempotent =</b> si tu exécutes le script 1 fois ou 10 fois, le résultat est le même. Un script Bash dit « créer », mais si c'est déjà créé → ERREUR !</p>
+</section>
+
+<!-- 28 ── SCRIPTS MÉTAPHORES -->
+<section>
+  <h2>Les Scripts, en Images 🎭</h2>
+  <div class="card cyellow" style="margin-bottom:10px"><h4>📖 Le script = une recette de cuisine écrite à la main</h4>Elle marche très bien... dans TA cuisine. Mais chez quelqu'un d'autre (four différent, ingrédients manquants), la recette échoue sans prévenir.<br/><b><i>➜ Un script dépend de son environnement : changement de serveur = risque de panne.</i></b></div>
+  <div class="card cpink" style="margin-bottom:10px"><h4>🤖 Le script = un robot qui suit les ordres aveuglément</h4>Tu lui dis « ajoute du sel » : il en ajoute, même si le plat est déjà salé ! Il ne vérifie jamais l'état avant d'agir.<br/><b><i>➜ Exécuter 2 fois un script = doublons, erreurs... C'est le problème d'idempotence.</i></b></div>
+  <div class="card cteal"><h4>✉️ Le script = envoyer 100 lettres une par une</h4>Pour 100 serveurs, il faut se connecter à chacun et lancer le script à la main, l'un après l'autre. Long et épuisant !<br/><b><i>➜ Pas de gestion de parc : le script ne connaît qu'une machine à la fois.</i></b></div>
+  <p style="text-align:center;font-size:.6em;font-style:italic;color:var(--purple);margin-top:14px">Et si un outil savait vérifier avant d'agir, et parler à 1000 serveurs en même temps ? 🤔</p>
+</section>
+
+<!-- 29 ── QCM SCRIPTS -->
+<section class="dark" data-background-color="#312E81" data-qcm="5"></section>
+
+<!-- 30 ── ANSIBLE -->
+<section>
+  <h2>Ansible — Automatiser en Décrivant l'État Voulu</h2>
+  <p class="banner purple">🤖 Ansible est un outil open-source qui automatise la configuration de serveurs en décrivant l'état qu'on veut obtenir.</p>
+  <div class="grid2">
+    <div class="codebox violet"><span class="hd">install_postgres.yml — Playbook Ansible</span>- name: Installer PostgreSQL
+  hosts: all  # 100 serveurs d'un coup
+  tasks:
+    - name: Installer le paquet
+      apt:
+        name: postgresql
+        state: present
+
+    - name: Démarrer le service
+      service:
+        name: postgresql
+        state: started</div>
+    <div class="grid2" style="gap:8px">
+      <div class="card cgreen" style="text-align:center"><div class="ic">🔁</div><h4>Idempotent</h4>Exécutable 100 fois : même résultat. Aucune surprise !</div>
+      <div class="card cpurple" style="text-align:center"><div class="ic">🌐</div><h4>Multi-serveurs</h4>1 playbook configure 1 ou 1000 serveurs simultanément.</div>
+      <div class="card cteal" style="text-align:center"><div class="ic">📖</div><h4>Lisible</h4>YAML = langage humain. L'équipe entière peut comprendre.</div>
+      <div class="card cyellow" style="text-align:center"><div class="ic">🔌</div><h4>Sans agent</h4>Rien à installer sur les serveurs cibles. Juste SSH.</div>
+    </div>
+  </div>
+  <div class="banner darkbg" style="margin-top:12px;font-weight:400">
+    <span style="color:#FCA5A5"><b>Scripts Bash :</b> <span class="mono">"Exécute ces commandes"</span></span><br/>
+    <span style="color:#86EFAC"><b>Ansible :</b> <span class="mono">"PostgreSQL doit être installé et démarré"</span></span>
+    <span style="color:var(--yellow)"> → Ansible vérifie et corrige si nécessaire</span>
+  </div>
+</section>
+
+<!-- 31 ── ANSIBLE VS SHELL -->
+<section>
+  <h2>Ansible vs Script Shell — Cas Concrets</h2>
+  <table class="mini" style="font-size:.45em">
+    <tr><th style="background:var(--dark)">Cas d'usage</th><th style="background:#991B1B">📜 Avec un script Shell</th><th style="background:var(--green)">🤖 Avec Ansible</th></tr>
+    <tr><td style="background:var(--purple-l)!important"><b>💾 Sauvegarder 50 BDD chaque nuit</b></td><td style="background:#FFF1F2!important;color:#7F1D1D">1 script par serveur, à copier et adapter 50 fois. Si un serveur change de mot de passe → le script casse en silence.</td><td style="background:#ECFDF5!important;color:#064E3B">1 playbook + 1 inventaire de 50 serveurs. Exécution parallèle, rapport clair : 48 OK, 2 en échec.</td></tr>
+    <tr><td style="background:var(--purple-l)!important"><b>🏗️ Installer PostgreSQL sur 20 serveurs</b></td><td style="background:#FFF1F2!important;color:#7F1D1D">Se connecter à chaque serveur un par un, lancer le script, vérifier à la main. Relancer = risque d'erreur « déjà installé ».</td><td style="background:#ECFDF5!important;color:#064E3B">1 commande pour les 20 serveurs. Relançable à volonté : Ansible vérifie l'état et ne refait que ce qui manque.</td></tr>
+    <tr><td style="background:var(--purple-l)!important"><b>🔐 Appliquer un patch de sécurité urgent</b></td><td style="background:#FFF1F2!important;color:#7F1D1D">Plusieurs heures de connexions manuelles. Aucune trace de qui a patché quoi, ni quand.</td><td style="background:#ECFDF5!important;color:#064E3B">Patch déployé sur tout le parc en quelques minutes, avec un log complet et auditable de chaque action.</td></tr>
+  </table>
+  <p class="banner lightyellow" style="margin-top:12px">🏆 Bilan : moins d'erreurs, plus de vitesse, et tout est tracé — c'est ça, l'automatisation moderne !</p>
+</section>
+
+<!-- 32 ── QCM ANSIBLE -->
+<section class="dark" data-background-color="#312E81" data-qcm="6"></section>
+
+<!-- 33 ── INDUSTRIALISATION -->
+<section>
+  <h2>Industrialisation — Produire à Grande Échelle</h2>
+  <p class="banner pink">🏭 Analogie : une usine Toyota produit la même voiture, fiable, 1000 fois par jour. L'industrialisation, c'est ça !</p>
+  <div class="grid2">
+    <div class="card cpurple"><h4>📐 Standardisation</h4>Tous les serveurs suivent les mêmes règles : mêmes configs, mêmes versions, mêmes noms.</div>
+    <div class="card cgreen"><h4>🔁 Reproductibilité</h4>Dev, Test, Production = environnements identiques. Fini le « ça marche chez moi ! »</div>
+    <div class="card cteal"><h4>📦 Infrastructure as Code</h4>Les configs sont du code : versionnées dans Git, révisées, auditables.</div>
+    <div class="card corange"><h4>🚀 Déploiement Continu</h4>Une nouvelle BDD est toujours déployée de la même façon, en 5 minutes, pas en 5 jours.</div>
+  </div>
+  <p class="banner darkbg" style="margin-top:12px;color:var(--yellow)">🎯 Automatisation + Industrialisation = faire en 1 semaine ce qui prenait 3 mois à la main !</p>
+</section>
+
+<!-- 34-35 ── INDUS DÉTAILS (générées en JS) -->
+<section data-indus="0"></section>
+<section data-indus="1"></section>
+
+<!-- 36 ── QCM INDUS -->
+<section class="dark" data-background-color="#312E81" data-qcm="7"></section>
+
+<!-- 37 ── CONCLUSION -->
+<section class="dark" data-background-color="#1E1B4B">
+  <h2>Ce qu'on a appris aujourd'hui 🎓</h2>
+  <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">💡 Une donnée = une information numérique ; une BDD = le conteneur organisé qui la stocke</div>
+  <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">🛡️ Le DBA gère, sécurise et optimise les BDD (installation, backup, accès, perf, migration)</div>
+  <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">☁️ Le Cloud permet de louer des ressources à la demande — le DBA doit s'y adapter</div>
+  <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">🔁 Scripts Bash/Python = 1er pas vers l'automatisation, mais fragiles et non-idempotents</div>
+  <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">🤖 Ansible automatise la config de 1000 serveurs en décrivant l'état voulu (idempotent)</div>
+  <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">🏭 Industrialisation = standardiser + reproduire à grande échelle → des semaines gagnées</div>
+  <p style="text-align:center;font-size:.75em;font-weight:900;color:var(--yellow);margin-top:20px">Merci — Des questions ? 🙋</p>
+  <p style="text-align:center;font-size:.55em"><a href="jeu.html" style="color:#C4B5FD">🎮 Place au jeu : Mission DBA →</a></p>
+</section>
+
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script>
+// ── QCM (cliquables) ──
+const QCMS = [
+  { q:"À quoi sert une base de données ?",
+    opts:["Envoyer des messages sur les réseaux sociaux","Stocker, organiser et retrouver des informations rapidement","Créer des présentations PowerPoint","Réparer des ordinateurs en panne"], ok:1 },
+  { q:"Quel est le rôle principal d'un DBA ?",
+    opts:["Concevoir des interfaces et applications mobiles","Réparer le matériel informatique (ordinateurs, câbles)","Gérer, sécuriser et optimiser les bases de données","Gérer les réseaux Wi-Fi de l'entreprise"], ok:2 },
+  { q:"Si la base de données est lente, que fait en premier le DBA ?",
+    opts:["Il redémarre le serveur et attend que ça passe","Il analyse les requêtes SQL lentes et crée des index","Il appelle le service commercial pour un nouveau serveur","Il supprime les données inutiles au hasard"], ok:1 },
+  { q:"Quel est l'avantage principal du Cloud pour une entreprise ?",
+    opts:["Les données ne peuvent jamais être perdues dans le Cloud","On paie uniquement les ressources qu'on utilise, à la demande","Internet n'est pas nécessaire pour accéder au Cloud","Les serveurs Cloud sont toujours dans le même bâtiment"], ok:1 },
+  { q:"Laquelle de ces tâches DBA est la plus adaptée à l'automatisation ?",
+    opts:["Décider quelle base de données acheter","Lancer une sauvegarde chaque nuit à 2h du matin sur 50 serveurs","Discuter de la stratégie avec la direction","Choisir le nom d'une nouvelle base de données"], ok:1 },
+  { q:"Quel est le principal problème d'un script Bash pour automatiser sur 100 serveurs ?",
+    opts:["Il est trop lent à écrire","Il ne s'exécute qu'un serveur à la fois et peut casser si l'environnement change","Il coûte très cher en licence","Il ne fonctionne que la nuit"], ok:1 },
+  { q:"Quelle est la grande différence entre Ansible et un script Bash ?",
+    opts:["Ansible est payant, Bash est gratuit","Ansible décrit l'état voulu (idempotent) ; Bash exécute des commandes dans l'ordre","Ansible ne fonctionne que sur Windows","Bash peut gérer plusieurs serveurs, Ansible non"], ok:1 },
+  { q:"Qu'est-ce que l'industrialisation en informatique ?",
+    opts:["Construire des usines physiques pour fabriquer des serveurs","Standardiser et reproduire les processus à grande échelle, comme une usine","Supprimer tous les scripts et travailler uniquement à la main","Utiliser uniquement des logiciels gratuits et open-source"], ok:1 },
+];
+const LETTERS = ["A","B","C","D"];
+document.querySelectorAll("[data-qcm]").forEach(sec => {
+  const { q, opts, ok } = QCMS[+sec.dataset.qcm];
+  sec.innerHTML = `<p class="qbadge">❓ QUIZ</p><h2 style="font-size:1em">${q}</h2>` +
+    opts.map((o, i) => `<button class="qcm-opt" data-ok="${i === ok}"><b>${LETTERS[i]}.</b> ${o}</button>`).join("");
+  sec.querySelectorAll(".qcm-opt").forEach(btn => btn.addEventListener("click", () => {
+    sec.querySelectorAll(".qcm-opt").forEach(b => {
+      if (b.dataset.ok === "true") b.classList.add("good");
+      else if (b === btn) b.classList.add("bad");
+    });
+  }));
+});
+
+// ── Missions DBA (3 slides × 2 missions) ──
+const MISSIONS = [
+  { icon:"🏗️", cls:"cpurple", title:"Installation & Configuration", actions:["Choisir et installer le SGBD (Oracle, PostgreSQL...)","Configurer mémoire, disques, paramètres réseau","Créer les schémas, tablespaces et utilisateurs initiaux","Valider l'installation via des tests de connexion"] },
+  { icon:"💾", cls:"cgreen", title:"Sauvegarde & Restauration", actions:["Planifier des sauvegardes auto (nuit, hebdo, mensuel)","Tester les restaurations régulièrement (oui, tester !)","Surveiller l'espace disque consommé par les backups","Documenter les procédures de récupération d'urgence"] },
+  { icon:"🔐", cls:"cpink", title:"Gestion des Accès & Sécurité", actions:["Créer des comptes utilisateurs avec les bons droits","Appliquer le principe du moindre privilège","Auditer les connexions suspectes dans les logs","Révoquer immédiatement les accès des employés qui partent"] },
+  { icon:"🚀", cls:"corange", title:"Optimisation des Performances", actions:["Identifier les requêtes SQL lentes avec les plans d'exécution","Créer des index pour accélérer les recherches fréquentes","Surveiller l'utilisation CPU, RAM, I/O disque en temps réel","Proposer des corrections au code SQL si nécessaire"] },
+  { icon:"📊", cls:"cteal", title:"Supervision & Alertes", actions:["Configurer des alertes : espace disque < 10%, CPU > 90%...","Consulter les logs d'erreurs chaque matin (le café du DBA !)","Créer des tableaux de bord de monitoring (Grafana, OEM...)","Répondre aux incidents 24h/24 si la BDD tombe en panne"] },
+  { icon:"🔄", cls:"cyellow", title:"Migration & Mise à Jour", actions:["Auditer l'existant : taille, dépendances, contraintes techniques","Planifier la migration pour éviter toute interruption de service","Tester la migration sur un environnement de recette en premier","Basculer en production avec un plan de rollback en cas d'échec"] },
+];
+document.querySelectorAll("[data-missions]").forEach(sec => {
+  const part = +sec.dataset.missions;
+  sec.innerHTML = `<h2>Les Missions du DBA — Partie ${part + 1} / 3</h2>` +
+    MISSIONS.slice(part * 2, part * 2 + 2).map(m =>
+      `<div class="card ${m.cls}" style="margin-bottom:12px"><h4 style="font-size:1.45em">${m.icon} ${m.title}</h4>` +
+      m.actions.map(a => `▸ ${a}`).join("<br/>") + `</div>`).join("");
+});
+
+// ── Industrialisation détails (2 slides × 2 rubriques) ──
+const INDUS = [
+  { icon:"📐", cls:"cpurple", title:"Standardisation",
+    what:"Définir UNE seule bonne façon de faire, appliquée partout : mêmes versions de PostgreSQL, mêmes conventions de nommage, mêmes paramètres de sécurité.",
+    ex:"Exemple : toutes les BDD s'appellent « projet_environnement » (ex : vente_prod, vente_test) — n'importe quel DBA s'y retrouve immédiatement.",
+    benefit:"Bénéfice : moins de surprises, dépannage plus rapide, nouveaux arrivants opérationnels en quelques jours." },
+  { icon:"🔁", cls:"cgreen", title:"Reproductibilité",
+    what:"Pouvoir recréer à l'identique un environnement complet : si la prod et le test sont identiques, ce qui marche en test marchera en prod.",
+    ex:"Exemple : un bug en production ? On recrée l'environnement exact en 10 minutes pour le reproduire et le corriger sans toucher à la prod.",
+    benefit:"Bénéfice : fini le « ça marche chez moi ! » — les tests deviennent fiables à 100 %." },
+  { icon:"📦", cls:"cteal", title:"Infrastructure as Code (IaC)",
+    what:"Toute la configuration est écrite sous forme de code (fichiers texte), stockée dans Git comme du code applicatif : versionnée, relue, validée.",
+    ex:"Exemple : pour savoir qui a changé la taille mémoire d'une BDD et quand → il suffit de regarder l'historique Git, comme un journal de bord.",
+    benefit:"Bénéfice : traçabilité totale, retour arrière possible, et la doc est toujours à jour (c'est le code !)." },
+  { icon:"🚀", cls:"corange", title:"Déploiement Continu",
+    what:"Chaque changement validé est déployé automatiquement par un pipeline : tests automatiques → validation → mise en production, sans intervention manuelle.",
+    ex:"Exemple : le DBA modifie un paramètre dans Git à 14h00 → à 14h10, les 200 serveurs sont à jour, testés et vérifiés automatiquement.",
+    benefit:"Bénéfice : des déploiements rapides, fréquents et sans stress — même un vendredi !" },
+];
+document.querySelectorAll("[data-indus]").forEach(sec => {
+  const part = +sec.dataset.indus;
+  sec.innerHTML = `<h2>L'Industrialisation en Détail — ${part + 1} / 2</h2>` +
+    INDUS.slice(part * 2, part * 2 + 2).map(r =>
+      `<div class="card ${r.cls}" style="margin-bottom:12px"><h4 style="font-size:1.35em">${r.icon} ${r.title}</h4>${r.what}<br/><i style="opacity:.75">${r.ex}</i><br/><b>✅ ${r.benefit}</b></div>`).join("");
+});
+
+Reveal.initialize({ hash:true, slideNumber:"c/t", width:1060, height:640, margin:0.04 });
+</script>
+</body>
+</html>
