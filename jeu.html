@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🎮 Mission DBA — Le Jeu</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --dark:#0D0D1A; --card:#1A1A2E; --purple:#7B2FBE; --purple-l:#A78BFA;
+  --cyan:#00C8FF; --yellow:#FFD166; --green:#06D6A0; --red:#E94560;
+  --gray:#A0A0C0; --white:#fff;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--dark); color:var(--white); font-family:'Outfit',sans-serif; min-height:100vh; }
+.wrap { max-width:980px; margin:0 auto; padding:24px 16px 60px; }
+
+header { text-align:center; margin-bottom:18px; }
+header h1 { font-size:2.2rem; font-weight:900; }
+header h1 span { color:var(--purple-l); }
+header p { color:var(--gray); margin-top:6px; }
+
+/* Score bar */
+.scorebar { display:flex; justify-content:space-between; align-items:center; background:var(--card); border:1px solid #333; border-radius:12px; padding:10px 18px; margin-bottom:14px; }
+.scorebar .sc { font-size:1.3rem; font-weight:900; color:var(--yellow); }
+.scorebar .lbl { color:var(--gray); font-size:.85rem; }
+
+/* Progress */
+.progress { display:flex; gap:6px; margin:14px 0; }
+.step-dot { flex:1; height:10px; border-radius:5px; background:var(--card); border:1px solid #333; transition:all .4s; }
+.step-dot.done { background:var(--green); border-color:var(--green); }
+.step-dot.active { background:var(--yellow); border-color:var(--yellow); animation:pulse 1.2s infinite; }
+@keyframes pulse { 50% { opacity:.5; } }
+
+/* Intro */
+.intro { background:var(--card); border:2px solid var(--purple); border-radius:18px; padding:30px 34px; }
+.intro h2 { font-size:1.6rem; margin-bottom:12px; }
+.intro h2 span { color:var(--purple-l); }
+.intro p { color:var(--gray); line-height:1.65; margin-bottom:14px; }
+.intro .multi { background:rgba(6,214,160,.1); border:1px dashed var(--green); border-radius:10px; padding:12px 16px; color:var(--green); margin:14px 0; font-size:.95rem; }
+.intro ol { margin:10px 0 18px 22px; color:var(--white); line-height:2; }
+.intro ol li b { color:var(--yellow); }
+.intro .scoring { background:rgba(255,209,102,.08); border:1px dashed var(--yellow); border-radius:10px; padding:12px 16px; color:var(--yellow); font-size:.92rem; margin-bottom:18px; }
+.btn-start { display:block; margin:0 auto; background:var(--purple); color:#fff; font-size:1.1rem; padding:14px 38px; }
+
+/* Mission card */
+.mission { background:var(--card); border:2px solid var(--purple); border-radius:16px; padding:20px 24px; margin-bottom:14px; }
+.mission .badge { display:inline-block; background:var(--purple); padding:4px 14px; border-radius:20px; font-size:.8rem; font-weight:700; letter-spacing:1px; margin-bottom:10px; }
+.mission .pts { float:right; color:var(--yellow); font-weight:900; font-size:1.05rem; }
+.mission h2 { font-size:1.3rem; margin-bottom:8px; }
+.mission p { color:var(--gray); line-height:1.5; }
+.metaphor { margin-top:12px; background:rgba(167,139,250,.1); border-left:4px solid var(--purple-l); padding:10px 14px; border-radius:0 8px 8px 0; color:var(--purple-l); font-size:.95rem; line-height:1.5; }
+.cmdbox { margin-top:12px; background:#000; border:1px solid #333; border-radius:10px; padding:12px 16px; }
+.cmdbox .lbl { color:var(--gray); font-size:.78rem; letter-spacing:1px; margin-bottom:6px; }
+.cmdbox code { font-family:'Space Mono',monospace; color:var(--green); font-size:1rem; word-break:break-all; }
+
+/* Terminal */
+.terminal { background:#000; border-radius:12px; overflow:hidden; border:1px solid #333; box-shadow:0 10px 40px rgba(123,47,190,.25); }
+.term-bar { background:#1c1c28; padding:9px 14px; display:flex; align-items:center; gap:8px; }
+.term-bar .dot { width:12px; height:12px; border-radius:50%; }
+.term-bar .title { margin-left:10px; color:var(--gray); font-size:.8rem; font-family:'Space Mono',monospace; }
+.term-body { padding:16px; font-family:'Space Mono',monospace; font-size:.88rem; min-height:240px; max-height:400px; overflow-y:auto; line-height:1.55; }
+.out { white-space:pre-wrap; word-break:break-word; }
+.out.ok { color:var(--green); }
+.out.err { color:var(--red); }
+.out.info { color:var(--cyan); }
+.out.pts { color:var(--yellow); font-weight:700; }
+.out.cmd { color:var(--white); }
+.out.cmd::before { content:'$ '; color:var(--green); }
+.out.sqlcmd::before { content:'lycee=# '; color:var(--purple-l); }
+.out.filecmd::before { content:'script> '; color:var(--yellow); }
+.input-line { display:flex; align-items:center; gap:6px; }
+.input-line .prompt { color:var(--green); white-space:nowrap; }
+.input-line .prompt.sql { color:var(--purple-l); }
+.input-line .prompt.file { color:var(--yellow); }
+.input-line input { flex:1; background:transparent; border:none; outline:none; color:var(--white); font-family:'Space Mono',monospace; font-size:.88rem; caret-color:var(--green); }
+
+/* Buttons */
+.actions { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+button { font-family:'Outfit',sans-serif; font-weight:700; border:none; border-radius:10px; padding:10px 18px; cursor:pointer; font-size:.9rem; transition:transform .15s; }
+button:hover { transform:translateY(-2px); }
+.btn-hint { background:var(--yellow); color:#000; }
+.btn-reset { background:var(--card); color:var(--gray); border:1px solid #444; }
+
+/* Victory */
+.victory { display:none; text-align:center; padding:40px 20px; }
+.victory.show { display:block; }
+.victory .trophy { font-size:5rem; animation:bounce 1s infinite alternate; }
+@keyframes bounce { to { transform:translateY(-14px); } }
+.victory h2 { font-size:2rem; margin:16px 0 8px; color:var(--yellow); }
+.victory .final-score { font-size:3rem; font-weight:900; color:var(--green); margin:10px 0; }
+.victory .rank { font-size:1.3rem; color:var(--purple-l); font-weight:700; margin-bottom:14px; }
+.victory p { color:var(--gray); max-width:620px; margin:0 auto 16px; line-height:1.6; }
+.badges { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:18px; }
+.badge-card { background:var(--card); border:2px solid var(--green); border-radius:14px; padding:16px 20px; width:150px; }
+.badge-card .ic { font-size:2rem; }
+.badge-card .nm { font-weight:700; margin-top:6px; font-size:.85rem; }
+.script-final { text-align:left; max-width:620px; margin:24px auto 0; background:#000; border:1px solid var(--green); border-radius:12px; padding:18px 22px; font-family:'Space Mono',monospace; font-size:.82rem; color:var(--green); white-space:pre; overflow-x:auto; }
+.script-final .ttl { color:var(--gray); font-family:'Outfit',sans-serif; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🎮 Mission <span>DBA</span></h1>
+    <p>Un jeu interactif hébergé sur GitHub Pages — deviens Administratrice de Bases de Données !</p>
+  </header>
+
+  <!-- ════════ ÉCRAN D'ACCUEIL ════════ -->
+  <div class="intro" id="intro">
+    <h2>Bienvenue dans <span>Mission DBA</span> ! 🐘</h2>
+    <p>Dans ce jeu, tu te mets dans la peau d'une <b>DBA</b> (Administratrice de Bases de Données) qui prend en main
+    un serveur tout neuf. Ta mission : le transformer en vraie base de données fonctionnelle, en tapant les
+    commandes dans un terminal simulé — exactement comme dans la vraie vie !</p>
+
+    <div class="multi">
+      👥 <b>Jouable à plusieurs !</b> Ce jeu est une simple page web sur GitHub : chacun peut l'ouvrir sur
+      son propre ordinateur ou téléphone avec le même lien. Pas d'installation, pas de compte — tout le monde
+      joue en même temps, chacun à son rythme.
+    </div>
+
+    <p><b>Voici les actions que tu vas réaliser :</b></p>
+    <ol>
+      <li><b>⚙️ Installer le moteur</b> de base de données (PostgreSQL)</li>
+      <li><b>🔌 Te connecter</b> au moteur avec l'outil psql</li>
+      <li><b>🗄️ Créer la base de données</b> du lycée</li>
+      <li><b>🔐 Créer un utilisateur</b> et lui donner ses droits d'accès</li>
+      <li><b>🔍 Requêter les données</b> avec ta première requête SQL</li>
+      <li><b>🤖 Mission bonus :</b> écrire toi-même le script qui automatise tout ça !</li>
+    </ol>
+
+    <div class="scoring">
+      ⭐ <b>Le score :</b> chaque mission rapporte <b>100 points</b>. Chaque erreur coûte 10 points,
+      chaque indice 20 points (minimum 30 points par mission). Vise les <b>900 points</b> pour le rang
+      « DBA Experte » ! 🏆
+    </div>
+
+    <p>💡 Pas de panique : pour chaque mission, <b>la commande à taper est affichée en clair</b>.
+    Le but n'est pas de deviner, mais de comprendre ce que tu fais — recopie-la, observe le résultat, et avance !</p>
+
+    <button class="btn-start" onclick="startGame()">🚀 Commencer la mission</button>
+  </div>
+
+  <!-- ════════ JEU ════════ -->
+  <div id="game" style="display:none">
+    <div class="scorebar">
+      <div><span class="lbl">SCORE&nbsp;&nbsp;</span><span class="sc" id="scoreEl">0</span></div>
+      <div class="lbl" id="missionCount"></div>
+    </div>
+    <div class="progress" id="progress"></div>
+
+    <div class="mission">
+      <span class="badge" id="mBadge"></span>
+      <span class="pts" id="mPts"></span>
+      <h2 id="mTitle"></h2>
+      <p id="mDesc"></p>
+      <div class="metaphor" id="mMeta"></div>
+      <div class="cmdbox">
+        <div class="lbl">📋 COMMANDE À TAPER :</div>
+        <code id="mCmd"></code>
+      </div>
+    </div>
+
+    <div class="terminal">
+      <div class="term-bar">
+        <span class="dot" style="background:#FF5F57"></span>
+        <span class="dot" style="background:#FEBC2E"></span>
+        <span class="dot" style="background:#28C840"></span>
+        <span class="title">dba-server — terminal</span>
+      </div>
+      <div class="term-body" id="termBody">
+        <div class="out info">Bienvenue sur le serveur dba-server ! Recopie la commande ci-dessus. 👇</div>
+        <div class="input-line">
+          <span class="prompt" id="promptEl">$</span>
+          <input type="text" id="cmdInput" autocomplete="off" spellcheck="false" />
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-hint" onclick="useHint()">💡 Indice (-20 pts)</button>
+      <button class="btn-reset" onclick="location.reload()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+  <!-- ════════ VICTOIRE ════════ -->
+  <div class="victory" id="victory">
+    <div class="trophy">🏆</div>
+    <h2>Mission accomplie !</h2>
+    <div class="final-score" id="finalScore"></div>
+    <div class="rank" id="rankEl"></div>
+    <p>Tu as réalisé les 4 grandes actions d'un DBA — installer un moteur, créer une base,
+    gérer un utilisateur, requêter des données — et tu as même écrit ton premier script
+    d'automatisation. C'est exactement comme ça qu'on industrialise le métier !</p>
+    <div class="badges">
+      <div class="badge-card"><div class="ic">⚙️</div><div class="nm">Installeuse de SGBD</div></div>
+      <div class="badge-card"><div class="ic">🗄️</div><div class="nm">Créatrice de BDD</div></div>
+      <div class="badge-card"><div class="ic">🔐</div><div class="nm">Gardienne des accès</div></div>
+      <div class="badge-card"><div class="ic">🔍</div><div class="nm">Reine du SQL</div></div>
+      <div class="badge-card"><div class="ic">🤖</div><div class="nm">Automatiseuse</div></div>
+    </div>
+    <div class="script-final" id="scriptFinal"></div>
+    <div class="actions" style="justify-content:center; margin-top:26px;">
+      <button class="btn-hint" onclick="location.reload()">🔄 Rejouer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// mode: 'shell' ($), 'sql' (lycee=#), 'file' (script>)
+const STEPS = [
+  {
+    mode:'shell',
+    title:"⚙️ Mission 1 — Installer le moteur PostgreSQL",
+    desc:"Le serveur est tout neuf : aucun moteur de base de données. Installe PostgreSQL, le moteur open-source le plus populaire au monde 🐘.",
+    meta:"🚗 Métaphore : tu viens d'acheter une voiture sans moteur. Cette commande installe le moteur sous le capot — sans lui, rien ne roule !",
+    cmd:"sudo apt install postgresql",
+    check:c=>/^sudo\s+apt(-get)?\s+install\s+(-y\s+)?postgresql$/.test(c),
+    output:[["info","Lecture des listes de paquets... Fait"],["info","Paramétrage de postgresql-16 ..."],["ok","✅ PostgreSQL 16 installé et démarré ! Le moteur 🐘 est prêt."]]
+  },
+  {
+    mode:'shell',
+    title:"🔌 Mission 2 — Se connecter au moteur",
+    desc:"Le moteur tourne ! Connecte-toi avec l'outil psql en tant qu'utilisateur administrateur « postgres » pour pouvoir lui parler en SQL.",
+    meta:"📞 Métaphore : le moteur est une grande bibliothèque fermée. psql, c'est ta carte d'accès : une fois entrée, tu peux parler au bibliothécaire dans sa langue (le SQL).",
+    cmd:"psql -U postgres",
+    check:c=>/^(sudo\s+-u\s+postgres\s+psql|psql\s+-U\s+postgres)$/.test(c),
+    output:[["info","psql (16.3)"],["info","Saisissez « help » pour l'aide."],["ok","✅ Connectée ! Le prompt devient lycee=# — tu parles maintenant en SQL."]]
+  },
+  {
+    mode:'sql',
+    title:"🗄️ Mission 3 — Créer la base de données",
+    desc:"Le lycée veut stocker les notes de ses élèves. Crée la base de données qui va tout accueillir. En SQL, chaque commande finit par un point-virgule !",
+    meta:"🏠 Métaphore : tu construis la maison qui va abriter toutes les armoires (tables) de données. « lycee » est le nom écrit sur la porte d'entrée.",
+    cmd:"CREATE DATABASE lycee;",
+    check:c=>/^create\s+database\s+lycee\s*;$/i.test(c),
+    output:[["info","CREATE DATABASE"],["ok","✅ La base « lycee » existe ! Une table « eleves » avec 4 élèves y a été chargée pour la suite. 🎒"]]
+  },
+  {
+    mode:'sql',
+    title:"🔐 Mission 4 — Créer un utilisateur",
+    desc:"La documentaliste Alice a besoin d'accéder à la base. Règle d'or du DBA : jamais de compte sans mot de passe !",
+    meta:"🔑 Métaphore : tu fabriques un badge nominatif pour Alice. Sans badge, impossible d'entrer dans la maison — et le badge est protégé par un code secret.",
+    cmd:"CREATE USER alice WITH PASSWORD 'secret123';",
+    check:c=>/^create\s+user\s+alice\s+with\s+password\s+'secret123'\s*;$/i.test(c),
+    output:[["info","CREATE ROLE"],["ok","✅ Alice a son compte ! Mais attention : un badge sans autorisations n'ouvre aucune porte..."]]
+  },
+  {
+    mode:'sql',
+    title:"🤝 Mission 5 — Donner les droits à Alice",
+    desc:"Avoir un compte ne suffit pas : sans permissions, Alice ne peut rien voir. C'est le DBA qui décide qui a le droit de faire quoi.",
+    meta:"🚪 Métaphore : le badge d'Alice existe, mais aucune porte ne s'ouvre. Cette commande programme son badge pour ouvrir toutes les portes de la maison « lycee ».",
+    cmd:"GRANT ALL PRIVILEGES ON DATABASE lycee TO alice;",
+    check:c=>/^grant\s+all(\s+privileges)?\s+on\s+database\s+lycee\s+to\s+alice\s*;$/i.test(c),
+    output:[["info","GRANT"],["ok","✅ Le badge d'Alice ouvre maintenant la base lycee. Vérifions que les données répondent !"]]
+  },
+  {
+    mode:'sql',
+    title:"🔍 Mission 6 — Requêter les données",
+    desc:"Moment de vérité ! Interroge la table « eleves » pour vérifier que tout fonctionne. C'est LA commande la plus utilisée de ta vie de DBA.",
+    meta:"🗣️ Métaphore : tu demandes au bibliothécaire : « montre-moi TOUT (*) ce qu'il y a DANS (FROM) l'armoire eleves ». Et il te répond instantanément !",
+    cmd:"SELECT * FROM eleves;",
+    check:c=>/^select\s+\*\s+from\s+eleves\s*;$/i.test(c),
+    output:[["info","  nom   | classe | note "],["info","--------+--------+------"],["info"," Alice  | 2nde A |   17"],["info"," Bob    | 2nde B |   14"],["info"," Clara  | 2nde A |   18"],["info"," David  | 2nde C |   12"],["info","(4 lignes)"],["ok","✅ Les données répondent parfaitement ! Place à la mission bonus... 🤖"]]
+  },
+  // ── Mission bonus : créer le script ──
+  {
+    mode:'file',
+    title:"🤖 Mission bonus 1/3 — Crée ton script !",
+    desc:"Tu as tout fait à la main... Imagine refaire ça sur 50 serveurs ! Un DBA écrit un SCRIPT : un fichier qui rejoue toutes les commandes automatiquement. Première ligne obligatoire : dire à l'ordinateur quel langage utiliser.",
+    meta:"📖 Métaphore : un script, c'est une recette de cuisine écrite noir sur blanc. La première ligne « #!/bin/bash » dit : « cette recette se lit en langage Bash ». On l'appelle le shebang !",
+    cmd:"#!/bin/bash",
+    check:c=>/^#!\/bin\/bash$/.test(c),
+    output:[["info","→ ligne 1 ajoutée au fichier mon_script.sh"],["ok","✅ Le shebang est posé ! Ton fichier sait maintenant qu'il parle Bash."]]
+  },
+  {
+    mode:'file',
+    title:"🤖 Mission bonus 2/3 — Ajoute l'installation",
+    desc:"Deuxième ligne du script : l'installation du moteur. Exactement la même commande que la mission 1 — c'est ça l'automatisation : recopier ce qu'on sait déjà faire !",
+    meta:"📝 Métaphore : tu écris dans la recette : « Étape 1 — préchauffer le four ». La prochaine fois, plus besoin de réfléchir : la recette s'en souvient pour toi.",
+    cmd:"sudo apt install -y postgresql",
+    check:c=>/^sudo\s+apt(-get)?\s+install\s+-y\s+postgresql$/.test(c),
+    output:[["info","→ ligne 2 ajoutée au fichier mon_script.sh"],["ok","✅ Le « -y » répond « oui » automatiquement — un script ne doit jamais attendre un humain !"]]
+  },
+  {
+    mode:'file',
+    title:"🤖 Mission bonus 3/3 — Ajoute la création de la base",
+    desc:"Dernière ligne : créer la base ET l'utilisateur en une commande. L'astuce psql -c permet d'envoyer du SQL directement depuis le script, sans connexion manuelle.",
+    meta:"🎼 Métaphore : ta recette est complète ! Comme un chef d'orchestre, le script enchaîne toutes les étapes tout seul, dans le bon ordre, sans fausse note — sur 1 ou 1000 serveurs.",
+    cmd:'sudo -u postgres psql -c "CREATE DATABASE lycee;"',
+    check:c=>/^sudo\s+-u\s+postgres\s+psql\s+-c\s+"create\s+database\s+lycee;"$/i.test(c),
+    output:[["info","→ ligne 3 ajoutée au fichier mon_script.sh"],["ok","✅ TON SCRIPT EST COMPLET ! Lance-le avec « bash mon_script.sh » et tout se rejoue automatiquement. 🚀"]]
+  }
+];
+
+const PROMPTS = { shell:['$',''], sql:['lycee=#',' sql'], file:['script>',' file'] };
+const CMDCLS  = { shell:'cmd', sql:'sqlcmd', file:'filecmd' };
+
+let current = 0, score = 0, missionPts = 100;
+const termBody = document.getElementById('termBody');
+const input = document.getElementById('cmdInput');
+const promptEl = document.getElementById('promptEl');
+
+function startGame() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('game').style.display = 'block';
+  renderProgress(); renderMission(); input.focus();
+}
+
+function renderProgress() {
+  document.getElementById('progress').innerHTML = STEPS.map((_, i) =>
+    `<div class="step-dot ${i < current ? 'done' : i === current ? 'active' : ''}"></div>`).join('');
+  document.getElementById('scoreEl').textContent = score;
+  document.getElementById('missionCount').textContent = `Mission ${Math.min(current + 1, STEPS.length)} / ${STEPS.length}`;
+}
+
+function renderMission() {
+  const st = STEPS[current];
+  missionPts = 100;
+  document.getElementById('mBadge').textContent = `MISSION ${current + 1}/${STEPS.length}`;
+  document.getElementById('mPts').textContent = '⭐ ' + missionPts + ' pts';
+  document.getElementById('mTitle').textContent = st.title;
+  document.getElementById('mDesc').textContent = st.desc;
+  document.getElementById('mMeta').textContent = st.meta;
+  document.getElementById('mCmd').textContent = st.cmd;
+  promptEl.textContent = PROMPTS[st.mode][0];
+  promptEl.className = 'prompt' + PROMPTS[st.mode][1];
+}
+
+function print(cls, text) {
+  const div = document.createElement('div');
+  div.className = 'out ' + cls;
+  div.textContent = text;
+  termBody.insertBefore(div, termBody.querySelector('.input-line'));
+  termBody.scrollTop = termBody.scrollHeight;
+}
+
+function loseMissionPts(n) {
+  missionPts = Math.max(30, missionPts - n);
+  document.getElementById('mPts').textContent = '⭐ ' + missionPts + ' pts';
+}
+
+function useHint() {
+  loseMissionPts(20);
+  print('pts', '💡 Indice : recopie exactement la commande affichée dans l\'encadré vert « COMMANDE À TAPER » au-dessus du terminal. Attention aux espaces et au point-virgule ! (-20 pts)');
+}
+
+input.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const raw = input.value.trim();
+  input.value = '';
+  if (!raw) return;
+  const st = STEPS[current];
+  print(CMDCLS[st.mode], raw);
+
+  if (st.check(raw.replace(/\s+/g, ' '))) {
+    let delay = 250;
+    st.output.forEach(([cls, line]) => { setTimeout(() => print(cls, line), delay); delay += 280; });
+    score += missionPts;
+    setTimeout(() => print('pts', `⭐ +${missionPts} points ! Total : ${score}`), delay);
+    setTimeout(() => {
+      current++;
+      renderProgress();
+      if (current >= STEPS.length) showVictory();
+      else { renderMission(); print('info', '— Nouvelle mission affichée ci-dessus ⬆️ —'); }
+    }, delay + 350);
+  } else {
+    loseMissionPts(10);
+    const errs = [
+      "Hmm, pas tout à fait. Compare bien avec la commande affichée en clair ! (-10 pts)",
+      "Commande non reconnue. Vérifie chaque caractère — les ordinateurs sont pointilleux ! (-10 pts)",
+      "Presque ! Regarde l'encadré « COMMANDE À TAPER » (et le point-virgule en SQL 😉). (-10 pts)"
+    ];
+    print('err', '❌ ' + errs[Math.floor(Math.random() * errs.length)]);
+  }
+});
+
+function showVictory() {
+  document.getElementById('game').style.display = 'none';
+  const v = document.getElementById('victory');
+  v.classList.add('show');
+  document.getElementById('finalScore').textContent = score + ' pts';
+  const max = STEPS.length * 100;
+  const rank = score >= max * 0.9 ? '🥇 DBA Experte' : score >= max * 0.7 ? '🥈 DBA Confirmée' : '🥉 DBA Junior — continue à t\'entraîner !';
+  document.getElementById('rankEl').textContent = 'Rang : ' + rank;
+  document.getElementById('scriptFinal').innerHTML =
+    '<div class="ttl">📜 Le script que TU as écrit (mon_script.sh) :</div>' +
+    '#!/bin/bash\nsudo apt install -y postgresql\nsudo -u postgres psql -c "CREATE DATABASE lycee;"';
+}
+</script>
+</body>
+</html>
