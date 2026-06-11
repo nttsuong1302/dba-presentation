@@ -139,6 +139,7 @@ button:hover { transform:translateY(-2px); }
       <li><b>🔍 Requêter les données</b> : lire, insérer et supprimer</li>
       <li><b>💾 Sauvegarder</b> la base de données</li>
       <li><b>🤖 Mission bonus :</b> écrire toi-même un script avec l'éditeur vi !</li>
+      <li><b>📚 Grand final :</b> écrire un playbook Ansible pour installer PostgreSQL sur tout un parc de serveurs !</li>
     </ol>
 
     <div class="scoring">
@@ -216,6 +217,7 @@ button:hover { transform:translateY(-2px); }
       <div class="badge-card"><div class="ic">🔍</div><div class="nm">Reine du SQL</div></div>
       <div class="badge-card"><div class="ic">💾</div><div class="nm">Pro de la sauvegarde</div></div>
       <div class="badge-card"><div class="ic">🤖</div><div class="nm">Automatiseuse</div></div>
+      <div class="badge-card"><div class="ic">📚</div><div class="nm">Maîtresse d'Ansible</div></div>
     </div>
     <div class="script-final" id="scriptFinal"></div>
     <div class="actions" style="justify-content:center; margin-top:26px;">
@@ -439,7 +441,113 @@ const STEPS = [
       ["q","« quit » : quitte l'éditeur et retourne au terminal."]
     ],
     check:c=>/^:wq$/.test(c),
-    output:[["vi",'"mon_script.sh" 3 lignes écrites'],["ok","🎉 TON SCRIPT EST PRÊT ! Lance-le avec « bash mon_script.sh » et tout se rejoue automatiquement, sur n'importe quel serveur. C'est ça, l'automatisation ! 🚀"]]
+    output:[["vi",'"mon_script.sh" 3 lignes écrites'],["ok","🎉 TON SCRIPT EST PRÊT ! Mais souviens-toi : un script ne parle qu'à UN serveur à la fois... Pour un parc entier, il faut Ansible ! 🤖"]]
+  },
+  // ── Missions Ansible : le playbook ──
+  {
+    mode:'shell',
+    title:"🤖 Mission Ansible 1/7 — Créer le playbook",
+    desc:"Ton script Bash marche sur UN serveur. Mais l'entreprise en a 50 ! Avec Ansible, on écrit un PLAYBOOK : un fichier YAML qui décrit ce qu'on veut, et Ansible l'applique sur tout le parc. Crée le fichier avec vi.",
+    meta:"📚 Métaphore : le script Bash est une lettre envoyée à une personne. Le playbook Ansible est une circulaire : écrite UNE fois, distribuée à tous les serveurs en même temps !",
+    cmd:"vi install_postgres.yml",
+    explain:[
+      ["vi","Toujours notre éditeur de texte du terminal."],
+      ["install_postgres.yml","Le fichier playbook. L'extension .yml signale du YAML : un format lisible par les humains ET les machines."]
+    ],
+    check:c=>/^vi\s+install_postgres\.yml$/.test(c),
+    output:[["vi",'~\n~\n~\n"install_postgres.yml" [Nouveau fichier]'],["ok","✅ Le fichier est ouvert (on a appuyé sur « i » pour toi 😉). Écris la première ligne !"]]
+  },
+  {
+    mode:'file',
+    title:"🤖 Mission Ansible 2/7 — Choisir les serveurs cibles",
+    desc:"Première ligne du playbook : dire à Ansible SUR QUELS serveurs travailler. Ici : tous les serveurs de l'inventaire.",
+    meta:"📮 Métaphore : c'est la liste de diffusion de ta circulaire. « all » = tout le monde la reçoit. On pourrait écrire « serveurs_bdd » pour ne cibler que les serveurs de bases de données.",
+    cmd:"- hosts: all",
+    explain:[
+      ["-","En YAML, le tiret commence un élément de liste : un playbook peut contenir plusieurs blocs de travail."],
+      ["hosts:","« hôtes » : le mot-clé Ansible pour désigner les serveurs cibles."],
+      ["all","Tous les serveurs déclarés dans l'inventaire (le carnet d'adresses d'Ansible)."]
+    ],
+    check:c=>/^-\s*hosts:\s*all$/.test(c),
+    output:[["vi","- hosts: all"],["ok","✅ Ansible sait maintenant À QUI s'adresser. Ligne suivante : avec quels pouvoirs ?"]]
+  },
+  {
+    mode:'file',
+    title:"🤖 Mission Ansible 3/7 — Demander les pouvoirs d'admin",
+    desc:"Installer un logiciel demande les droits administrateur. En Ansible, pas de « sudo » devant chaque commande : on le déclare UNE fois pour tout le playbook.",
+    meta:"🎩 Métaphore : « become » = « deviens » l'administrateur. C'est le sudo de la mission 1, mais déclaré une seule fois en haut de la circulaire, valable pour toutes les instructions.",
+    cmd:"  become: yes",
+    explain:[
+      ["(2 espaces)","L'indentation ! En YAML, les espaces en début de ligne indiquent « ceci appartient au bloc au-dessus ». Deux espaces = cette ligne fait partie du bloc hosts."],
+      ["become:","« deviens » : exécuter les tâches avec des privilèges élevés."],
+      ["yes","Oui, deviens administrateur (l'équivalent du sudo de la mission 1)."]
+    ],
+    check:c=>/^become:\s*yes$/.test(c.trim()),
+    output:[["vi","  become: yes"],["ok","✅ Ansible aura les pleins pouvoirs sur chaque serveur. Maintenant, la liste des tâches !"]]
+  },
+  {
+    mode:'file',
+    title:"🤖 Mission Ansible 4/7 — Ouvrir la liste des tâches",
+    desc:"Un playbook contient une liste de TÂCHES à accomplir, dans l'ordre. Cette ligne ouvre la liste.",
+    meta:"📋 Métaphore : c'est le titre « Choses à faire : » en haut de ta to-do list. Les tâches viendront s'aligner en dessous, et Ansible les cochera une par une sur chaque serveur.",
+    cmd:"  tasks:",
+    explain:[
+      ["tasks:","« tâches » : le mot-clé qui annonce la liste des actions à exécuter sur les serveurs."]
+    ],
+    check:c=>/^tasks:$/.test(c.trim()),
+    output:[["vi","  tasks:"],["ok","✅ La to-do list est ouverte. Ajoutons LA tâche : installer PostgreSQL !"]]
+  },
+  {
+    mode:'file',
+    title:"🤖 Mission Ansible 5/7 — Nommer la tâche",
+    desc:"Chaque tâche commence par un nom lisible par les humains. C'est ce nom qui s'affichera dans le rapport d'exécution.",
+    meta:"🏷️ Métaphore : c'est l'étiquette sur la boîte. Quand Ansible tournera sur 50 serveurs, le rapport dira « Installer PostgreSQL : OK » — clair pour tout le monde, même ton chef !",
+    cmd:"    - name: Installer PostgreSQL",
+    explain:[
+      ["(4 espaces) -","Le tiret indenté : un nouvel élément dans la liste tasks."],
+      ["name:","Le nom humain de la tâche — libre, c'est de la documentation vivante."],
+      ["Installer PostgreSQL","Ce qui s'affichera dans le rapport d'Ansible pendant l'exécution."]
+    ],
+    check:c=>/^-\s*name:\s*installer postgresql$/i.test(c.trim()),
+    output:[["vi","    - name: Installer PostgreSQL"],["ok","✅ Tâche étiquetée ! Dernière ligne : dire CE QU'il faut faire."]]
+  },
+  {
+    mode:'file',
+    title:"🤖 Mission Ansible 6/7 — Le module apt",
+    desc:"Le cœur du playbook ! On utilise le module « apt » d'Ansible. La magie : « state: present » signifie « PostgreSQL doit être présent ». Si déjà installé, Ansible ne refait rien — c'est l'idempotence !",
+    meta:"🧠 Métaphore : un script dit « ajoute du sel ! » (même si c'est déjà salé). Ansible dit « le plat doit être salé » — il goûte d'abord, et ne sale QUE si nécessaire. On décrit l'état voulu, pas les gestes.",
+    cmd:"      apt: name=postgresql state=present",
+    explain:[
+      ["apt:","Le module Ansible qui pilote le gestionnaire de paquets apt (notre mission 1 !)."],
+      ["name=postgresql","Le paquet concerné : notre moteur 🐘."],
+      ["state=present","« doit être présent » : installe si absent, ne touche à rien si déjà là. C'est l'IDEMPOTENCE — la grande force d'Ansible sur les scripts !"]
+    ],
+    check:c=>/^apt:\s*name=postgresql\s+state=present$/.test(c.trim()),
+    output:[["vi","      apt: name=postgresql state=present"],["vi",'-- Échap puis :wq --  "install_postgres.yml" 5 lignes écrites'],["ok","✅ Playbook complet et sauvegardé ! Il ne reste plus qu'à le lancer..."]]
+  },
+  {
+    mode:'shell',
+    title:"🤖 Mission Ansible 7/7 — Lancer le playbook !",
+    desc:"Le moment magique : UNE commande, et Ansible installe PostgreSQL sur TOUS les serveurs de l'inventaire, en parallèle, avec un rapport détaillé.",
+    meta:"🚀 Métaphore : tu postes la circulaire. Elle part chez les 50 destinataires en même temps, chacun confirme la bonne réception, et tu reçois le récapitulatif complet. 5 minutes au lieu de 3 jours !",
+    cmd:"ansible-playbook install_postgres.yml",
+    explain:[
+      ["ansible-playbook","La commande qui lit un playbook et l'exécute sur les serveurs de l'inventaire."],
+      ["install_postgres.yml","Ton playbook fraîchement écrit !"]
+    ],
+    check:c=>/^ansible-playbook\s+install_postgres\.yml$/.test(c),
+    output:[
+      ["info","PLAY [all] *********************************************"],
+      ["info","TASK [Installer PostgreSQL] ****************************"],
+      ["ok","changed: [serveur-01]"],
+      ["ok","changed: [serveur-02]"],
+      ["ok","ok: [serveur-03]  (déjà installé — rien à faire 😎)"],
+      ["info","PLAY RECAP *********************************************"],
+      ["info","serveur-01 : ok=1  changed=1  failed=0"],
+      ["info","serveur-02 : ok=1  changed=1  failed=0"],
+      ["info","serveur-03 : ok=1  changed=0  failed=0"],
+      ["ok","🎉 PostgreSQL installé sur TOUT le parc en une commande ! Bienvenue dans l'industrialisation ! 🏭"]
+    ]
   }
 ];
 
@@ -539,7 +647,9 @@ function showVictory() {
   document.getElementById('rankEl').textContent = 'Rang : ' + rank;
   document.getElementById('scriptFinal').innerHTML =
     '<div class="ttl">📜 Le script que TU as écrit dans vi (mon_script.sh) :</div>' +
-    '#!/bin/bash\nsudo apt install -y postgresql\nsudo -u postgres psql -c "CREATE DATABASE lycee;"';
+    '#!/bin/bash\nsudo apt install -y postgresql\nsudo -u postgres psql -c "CREATE DATABASE lycee;"' +
+    '\n\n<div class="ttl">📚 Et TON playbook Ansible (install_postgres.yml) :</div>' +
+    '- hosts: all\n  become: yes\n  tasks:\n    - name: Installer PostgreSQL\n      apt: name=postgresql state=present';
 }
 </script>
 </body>
