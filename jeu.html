@@ -26,7 +26,7 @@ header p { color:var(--gray); margin-top:6px; }
 .scorebar .lbl { color:var(--gray); font-size:.85rem; }
 
 /* Progress */
-.progress { display:flex; gap:6px; margin:14px 0; }
+.progress { display:flex; gap:4px; margin:14px 0; }
 .step-dot { flex:1; height:10px; border-radius:5px; background:var(--card); border:1px solid #333; transition:all .4s; }
 .step-dot.done { background:var(--green); border-color:var(--green); }
 .step-dot.active { background:var(--yellow); border-color:var(--yellow); animation:pulse 1.2s infinite; }
@@ -54,6 +54,14 @@ header p { color:var(--gray); margin-top:6px; }
 .cmdbox .lbl { color:var(--gray); font-size:.78rem; letter-spacing:1px; margin-bottom:6px; }
 .cmdbox code { font-family:'Space Mono',monospace; color:var(--green); font-size:1rem; word-break:break-all; }
 
+/* Explication des commandes */
+.explain { margin-top:12px; background:rgba(0,200,255,.06); border:1px dashed var(--cyan); border-radius:10px; padding:12px 16px; }
+.explain .lbl { color:var(--cyan); font-size:.78rem; letter-spacing:1px; margin-bottom:8px; font-weight:700; }
+.explain table { width:100%; border-collapse:collapse; }
+.explain td { padding:4px 8px 4px 0; vertical-align:top; font-size:.9rem; line-height:1.4; }
+.explain td.k { font-family:'Space Mono',monospace; color:var(--cyan); white-space:nowrap; font-weight:700; }
+.explain td.v { color:var(--gray); }
+
 /* Terminal */
 .terminal { background:#000; border-radius:12px; overflow:hidden; border:1px solid #333; box-shadow:0 10px 40px rgba(123,47,190,.25); }
 .term-bar { background:#1c1c28; padding:9px 14px; display:flex; align-items:center; gap:8px; }
@@ -65,14 +73,17 @@ header p { color:var(--gray); margin-top:6px; }
 .out.err { color:var(--red); }
 .out.info { color:var(--cyan); }
 .out.pts { color:var(--yellow); font-weight:700; }
+.out.vi { color:#888; }
 .out.cmd { color:var(--white); }
 .out.cmd::before { content:'$ '; color:var(--green); }
 .out.sqlcmd::before { content:'lycee=# '; color:var(--purple-l); }
-.out.filecmd::before { content:'script> '; color:var(--yellow); }
+.out.filecmd::before { content:'~ '; color:var(--yellow); }
+.out.vicmd { color:var(--white); }
 .input-line { display:flex; align-items:center; gap:6px; }
 .input-line .prompt { color:var(--green); white-space:nowrap; }
 .input-line .prompt.sql { color:var(--purple-l); }
 .input-line .prompt.file { color:var(--yellow); }
+.input-line .prompt.vi { color:#888; }
 .input-line input { flex:1; background:transparent; border:none; outline:none; color:var(--white); font-family:'Space Mono',monospace; font-size:.88rem; caret-color:var(--green); }
 
 /* Buttons */
@@ -125,18 +136,19 @@ button:hover { transform:translateY(-2px); }
       <li><b>🔌 Te connecter</b> au moteur avec l'outil psql</li>
       <li><b>🗄️ Créer la base de données</b> du lycée</li>
       <li><b>🔐 Créer un utilisateur</b> et lui donner ses droits d'accès</li>
-      <li><b>🔍 Requêter les données</b> avec ta première requête SQL</li>
-      <li><b>🤖 Mission bonus :</b> écrire toi-même le script qui automatise tout ça !</li>
+      <li><b>🔍 Requêter les données</b> : lire, insérer et supprimer</li>
+      <li><b>💾 Sauvegarder</b> la base de données</li>
+      <li><b>🤖 Mission bonus :</b> écrire toi-même un script avec l'éditeur vi !</li>
     </ol>
 
     <div class="scoring">
       ⭐ <b>Le score :</b> chaque mission rapporte <b>100 points</b>. Chaque erreur coûte 10 points,
-      chaque indice 20 points (minimum 30 points par mission). Vise les <b>900 points</b> pour le rang
-      « DBA Experte » ! 🏆
+      chaque indice 20 points (minimum 30 points par mission). Atteins <b>90 % du score maximum</b>
+      pour le rang « DBA Experte » ! 🏆
     </div>
 
-    <p>💡 Pas de panique : pour chaque mission, <b>la commande à taper est affichée en clair</b>.
-    Le but n'est pas de deviner, mais de comprendre ce que tu fais — recopie-la, observe le résultat, et avance !</p>
+    <p>💡 Pas de panique : pour chaque mission, <b>la commande à taper est affichée en clair et chaque
+    mot de la commande est expliqué</b>. Le but n'est pas de deviner, mais de comprendre ce que tu fais !</p>
 
     <button class="btn-start" onclick="startGame()">🚀 Commencer la mission</button>
   </div>
@@ -159,6 +171,10 @@ button:hover { transform:translateY(-2px); }
         <div class="lbl">📋 COMMANDE À TAPER :</div>
         <code id="mCmd"></code>
       </div>
+      <div class="explain">
+        <div class="lbl">🔍 CHAQUE MOT EXPLIQUÉ :</div>
+        <table id="mExplain"></table>
+      </div>
     </div>
 
     <div class="terminal">
@@ -166,7 +182,7 @@ button:hover { transform:translateY(-2px); }
         <span class="dot" style="background:#FF5F57"></span>
         <span class="dot" style="background:#FEBC2E"></span>
         <span class="dot" style="background:#28C840"></span>
-        <span class="title">dba-server — terminal</span>
+        <span class="title" id="termTitle">dba-server — terminal</span>
       </div>
       <div class="term-body" id="termBody">
         <div class="out info">Bienvenue sur le serveur dba-server ! Recopie la commande ci-dessus. 👇</div>
@@ -189,14 +205,16 @@ button:hover { transform:translateY(-2px); }
     <h2>Mission accomplie !</h2>
     <div class="final-score" id="finalScore"></div>
     <div class="rank" id="rankEl"></div>
-    <p>Tu as réalisé les 4 grandes actions d'un DBA — installer un moteur, créer une base,
-    gérer un utilisateur, requêter des données — et tu as même écrit ton premier script
-    d'automatisation. C'est exactement comme ça qu'on industrialise le métier !</p>
+    <p>Tu as réalisé toutes les grandes actions d'un DBA — installer un moteur, créer une base,
+    gérer un utilisateur, lire / insérer / supprimer des données, faire une sauvegarde — et tu as
+    même écrit ton premier script d'automatisation dans vi. C'est exactement comme ça qu'on
+    industrialise le métier !</p>
     <div class="badges">
       <div class="badge-card"><div class="ic">⚙️</div><div class="nm">Installeuse de SGBD</div></div>
       <div class="badge-card"><div class="ic">🗄️</div><div class="nm">Créatrice de BDD</div></div>
       <div class="badge-card"><div class="ic">🔐</div><div class="nm">Gardienne des accès</div></div>
       <div class="badge-card"><div class="ic">🔍</div><div class="nm">Reine du SQL</div></div>
+      <div class="badge-card"><div class="ic">💾</div><div class="nm">Pro de la sauvegarde</div></div>
       <div class="badge-card"><div class="ic">🤖</div><div class="nm">Automatiseuse</div></div>
     </div>
     <div class="script-final" id="scriptFinal"></div>
@@ -207,7 +225,7 @@ button:hover { transform:translateY(-2px); }
 </div>
 
 <script>
-// mode: 'shell' ($), 'sql' (lycee=#), 'file' (script>)
+// mode: 'shell' ($), 'sql' (lycee=#), 'file' (~ dans vi), 'vi' (commande vi)
 const STEPS = [
   {
     mode:'shell',
@@ -215,6 +233,12 @@ const STEPS = [
     desc:"Le serveur est tout neuf : aucun moteur de base de données. Installe PostgreSQL, le moteur open-source le plus populaire au monde 🐘.",
     meta:"🚗 Métaphore : tu viens d'acheter une voiture sans moteur. Cette commande installe le moteur sous le capot — sans lui, rien ne roule !",
     cmd:"sudo apt install postgresql",
+    explain:[
+      ["sudo","« Super User DO » : exécute la commande avec les pouvoirs d'administrateur. Installer un logiciel modifie le système, donc il faut les pleins pouvoirs."],
+      ["apt","Le gestionnaire de paquets de Linux : c'est le « magasin d'applications » du serveur, en ligne de commande."],
+      ["install","L'action demandée à apt : télécharger et installer un logiciel."],
+      ["postgresql","Le nom du logiciel à installer : notre moteur de base de données 🐘."]
+    ],
     check:c=>/^sudo\s+apt(-get)?\s+install\s+(-y\s+)?postgresql$/.test(c),
     output:[["info","Lecture des listes de paquets... Fait"],["info","Paramétrage de postgresql-16 ..."],["ok","✅ PostgreSQL 16 installé et démarré ! Le moteur 🐘 est prêt."]]
   },
@@ -224,6 +248,11 @@ const STEPS = [
     desc:"Le moteur tourne ! Connecte-toi avec l'outil psql en tant qu'utilisateur administrateur « postgres » pour pouvoir lui parler en SQL.",
     meta:"📞 Métaphore : le moteur est une grande bibliothèque fermée. psql, c'est ta carte d'accès : une fois entrée, tu peux parler au bibliothécaire dans sa langue (le SQL).",
     cmd:"psql -U postgres",
+    explain:[
+      ["psql","Le « téléphone » pour parler au moteur PostgreSQL : un outil de connexion en ligne de commande."],
+      ["-U","Option « User » : précise avec quel compte on veut se connecter."],
+      ["postgres","Le nom du compte administrateur créé par défaut à l'installation — le « super-DBA » du moteur."]
+    ],
     check:c=>/^(sudo\s+-u\s+postgres\s+psql|psql\s+-U\s+postgres)$/.test(c),
     output:[["info","psql (16.3)"],["info","Saisissez « help » pour l'aide."],["ok","✅ Connectée ! Le prompt devient lycee=# — tu parles maintenant en SQL."]]
   },
@@ -233,6 +262,11 @@ const STEPS = [
     desc:"Le lycée veut stocker les notes de ses élèves. Crée la base de données qui va tout accueillir. En SQL, chaque commande finit par un point-virgule !",
     meta:"🏠 Métaphore : tu construis la maison qui va abriter toutes les armoires (tables) de données. « lycee » est le nom écrit sur la porte d'entrée.",
     cmd:"CREATE DATABASE lycee;",
+    explain:[
+      ["CREATE DATABASE","Ordre SQL : « crée une nouvelle base de données ». Les mots-clés SQL s'écrivent souvent en MAJUSCULES par convention (mais les minuscules marchent aussi)."],
+      ["lycee","Le nom qu'on donne à la base. Pas d'accents ni d'espaces dans les noms !"],
+      [";","Le point-virgule dit au moteur : « ma phrase est finie, exécute ! ». Sans lui, le moteur attend la suite."]
+    ],
     check:c=>/^create\s+database\s+lycee\s*;$/i.test(c),
     output:[["info","CREATE DATABASE"],["ok","✅ La base « lycee » existe ! Une table « eleves » avec 4 élèves y a été chargée pour la suite. 🎒"]]
   },
@@ -242,6 +276,12 @@ const STEPS = [
     desc:"La documentaliste Alice a besoin d'accéder à la base. Règle d'or du DBA : jamais de compte sans mot de passe !",
     meta:"🔑 Métaphore : tu fabriques un badge nominatif pour Alice. Sans badge, impossible d'entrer dans la maison — et le badge est protégé par un code secret.",
     cmd:"CREATE USER alice WITH PASSWORD 'secret123';",
+    explain:[
+      ["CREATE USER","Ordre SQL : « crée un nouveau compte utilisateur » dans le moteur."],
+      ["alice","Le nom du compte — généralement le prénom ou l'identifiant de la personne."],
+      ["WITH PASSWORD","« avec le mot de passe » : on attache un code secret au compte."],
+      ["'secret123'","Le mot de passe, toujours entre apostrophes en SQL. (Dans la vraie vie : choisis-en un bien plus costaud ! 😅)"]
+    ],
     check:c=>/^create\s+user\s+alice\s+with\s+password\s+'secret123'\s*;$/i.test(c),
     output:[["info","CREATE ROLE"],["ok","✅ Alice a son compte ! Mais attention : un badge sans autorisations n'ouvre aucune porte..."]]
   },
@@ -251,50 +291,161 @@ const STEPS = [
     desc:"Avoir un compte ne suffit pas : sans permissions, Alice ne peut rien voir. C'est le DBA qui décide qui a le droit de faire quoi.",
     meta:"🚪 Métaphore : le badge d'Alice existe, mais aucune porte ne s'ouvre. Cette commande programme son badge pour ouvrir toutes les portes de la maison « lycee ».",
     cmd:"GRANT ALL PRIVILEGES ON DATABASE lycee TO alice;",
+    explain:[
+      ["GRANT","« Accorder » : le verbe SQL pour donner des droits."],
+      ["ALL PRIVILEGES","« tous les privilèges » : lecture, écriture, modification... On pourrait ne donner que SELECT (lecture seule) !"],
+      ["ON DATABASE lycee","Sur quoi portent les droits : ici, la base lycee entière."],
+      ["TO alice","À qui on donne ces droits : au compte alice."]
+    ],
     check:c=>/^grant\s+all(\s+privileges)?\s+on\s+database\s+lycee\s+to\s+alice\s*;$/i.test(c),
     output:[["info","GRANT"],["ok","✅ Le badge d'Alice ouvre maintenant la base lycee. Vérifions que les données répondent !"]]
   },
   {
     mode:'sql',
-    title:"🔍 Mission 6 — Requêter les données",
+    title:"🔍 Mission 6 — Lire les données",
     desc:"Moment de vérité ! Interroge la table « eleves » pour vérifier que tout fonctionne. C'est LA commande la plus utilisée de ta vie de DBA.",
     meta:"🗣️ Métaphore : tu demandes au bibliothécaire : « montre-moi TOUT (*) ce qu'il y a DANS (FROM) l'armoire eleves ». Et il te répond instantanément !",
     cmd:"SELECT * FROM eleves;",
+    explain:[
+      ["SELECT","« Sélectionne » : le verbe SQL pour LIRE des données."],
+      ["*","L'étoile signifie « toutes les colonnes » (nom, classe, note...). On pourrait écrire SELECT nom pour ne voir que les noms."],
+      ["FROM eleves","« depuis la table eleves » : indique dans quelle armoire chercher."]
+    ],
     check:c=>/^select\s+\*\s+from\s+eleves\s*;$/i.test(c),
-    output:[["info","  nom   | classe | note "],["info","--------+--------+------"],["info"," Alice  | 2nde A |   17"],["info"," Bob    | 2nde B |   14"],["info"," Clara  | 2nde A |   18"],["info"," David  | 2nde C |   12"],["info","(4 lignes)"],["ok","✅ Les données répondent parfaitement ! Place à la mission bonus... 🤖"]]
+    output:[["info","  nom   | classe | note "],["info","--------+--------+------"],["info"," Alice  | 2nde A |   17"],["info"," Bob    | 2nde B |   14"],["info"," Clara  | 2nde A |   18"],["info"," David  | 2nde C |   12"],["info","(4 lignes)"],["ok","✅ Les données répondent ! Et si on ajoutait une nouvelle élève ?"]]
   },
-  // ── Mission bonus : créer le script ──
+  {
+    mode:'sql',
+    title:"➕ Mission 7 — Insérer une donnée",
+    desc:"Une nouvelle élève, Emma, vient d'arriver au lycée. Ajoute-la dans la table avec sa classe et sa note.",
+    meta:"📥 Métaphore : tu ranges une nouvelle fiche dans l'armoire « eleves » : une ligne de plus dans le tableau, avec les valeurs dans le bon ordre des colonnes.",
+    cmd:"INSERT INTO eleves VALUES ('Emma', '2nde A', 16);",
+    explain:[
+      ["INSERT INTO","« Insère dans » : le verbe SQL pour AJOUTER des données."],
+      ["eleves","La table dans laquelle on ajoute la nouvelle ligne."],
+      ["VALUES (...)","Les valeurs de la ligne, dans l'ordre des colonnes : nom, classe, note."],
+      ["'Emma', '2nde A'","Les textes sont toujours entre apostrophes..."],
+      ["16","...mais pas les nombres !"]
+    ],
+    check:c=>/^insert\s+into\s+eleves\s+values\s*\(\s*'emma'\s*,\s*'2nde a'\s*,\s*16\s*\)\s*;$/i.test(c),
+    output:[["info","INSERT 0 1"],["info","  nom   | classe | note "],["info","--------+--------+------"],["info"," Alice  | 2nde A |   17"],["info"," Bob    | 2nde B |   14"],["info"," Clara  | 2nde A |   18"],["info"," David  | 2nde C |   12"],["info"," Emma   | 2nde A |   16"],["info","(5 lignes)"],["ok","✅ Emma est dans la base ! « INSERT 0 1 » = 1 ligne ajoutée."]]
+  },
+  {
+    mode:'sql',
+    title:"➖ Mission 8 — Supprimer une donnée",
+    desc:"David a déménagé et quitte le lycée. Supprime sa ligne — et fais TRÈS attention au WHERE : c'est lui qui dit QUELLE ligne supprimer !",
+    meta:"⚠️ Métaphore : le WHERE, c'est l'étiquette sur la fiche à jeter. Sans WHERE, tu vides TOUTE l'armoire d'un coup ! C'est l'erreur la plus redoutée des DBA débutants...",
+    cmd:"DELETE FROM eleves WHERE nom = 'David';",
+    explain:[
+      ["DELETE FROM","« Supprime depuis » : le verbe SQL pour EFFACER des données."],
+      ["eleves","La table concernée par la suppression."],
+      ["WHERE","« où / à condition que » : le filtre qui désigne les lignes à supprimer. ⚠️ SANS le WHERE, TOUTES les lignes sont supprimées !"],
+      ["nom = 'David'","La condition : seules les lignes dont le nom est David sont effacées."]
+    ],
+    check:c=>/^delete\s+from\s+eleves\s+where\s+nom\s*=\s*'david'\s*;$/i.test(c),
+    output:[["info","DELETE 1"],["ok","✅ La ligne de David est supprimée (DELETE 1 = 1 ligne effacée). Le WHERE a bien protégé les autres ! 😮‍💨"]]
+  },
+  {
+    mode:'shell',
+    title:"💾 Mission 9 — Sauvegarder la base",
+    desc:"Règle n°1 du DBA : TOUJOURS avoir une sauvegarde ! Sors de psql (on l'a fait pour toi) et sauvegarde toute la base lycee dans un fichier.",
+    meta:"📸 Métaphore : pg_dump prend une « photo complète » de la base à cet instant. Si demain un disque grille ou quelqu'un fait un DELETE sans WHERE... on restaure la photo !",
+    cmd:"pg_dump lycee > sauvegarde.sql",
+    explain:[
+      ["pg_dump","L'outil de sauvegarde de PostgreSQL : il « vide » (dump) toute la base dans un texte SQL."],
+      ["lycee","Le nom de la base à sauvegarder."],
+      [">","La redirection : « envoie le résultat dans un fichier » au lieu de l'afficher à l'écran."],
+      ["sauvegarde.sql","Le fichier créé : il contient tout le SQL pour reconstruire la base à l'identique."]
+    ],
+    check:c=>/^pg_dump\s+lycee\s*>\s*sauvegarde\.sql$/.test(c),
+    output:[["info","-- Dump de la base lycee en cours..."],["info","-- Table eleves : 4 lignes exportées"],["ok","✅ Fichier sauvegarde.sql créé ! En cas de pépin : psql lycee < sauvegarde.sql et tout revient. 💪"]]
+  },
+  // ── Mission bonus : créer le script avec vi ──
+  {
+    mode:'shell',
+    title:"🤖 Mission bonus 1/6 — Ouvrir l'éditeur vi",
+    desc:"Tu as tout fait à la main... Imagine refaire ça sur 50 serveurs ! Un DBA écrit un SCRIPT : un fichier qui rejoue les commandes automatiquement. On va l'écrire avec vi, l'éditeur de texte mythique du terminal.",
+    meta:"📝 Métaphore : vi, c'est le carnet de notes du terminal. Pas de souris, pas de menus : tout se fait au clavier. Tous les serveurs du monde l'ont — un DBA DOIT savoir s'en servir !",
+    cmd:"vi mon_script.sh",
+    explain:[
+      ["vi","L'éditeur de texte présent sur tous les serveurs Linux depuis 1976 ! Austère mais ultra-puissant."],
+      ["mon_script.sh","Le fichier à créer. L'extension .sh signale un script shell (Bash)."]
+    ],
+    check:c=>/^vi\s+mon_script\.sh$/.test(c),
+    output:[["vi",'~\n~\n~\n"mon_script.sh" [Nouveau fichier]'],["ok","✅ vi est ouvert ! Mais attention : pour l'instant tu ne peux PAS écrire... il faut passer en mode insertion."]]
+  },
+  {
+    mode:'vi',
+    title:"🤖 Mission bonus 2/6 — Passer en mode insertion",
+    desc:"Piège classique de vi : à l'ouverture, on est en mode « commande » — taper du texte ne marche pas ! Appuie sur la touche i pour passer en mode insertion.",
+    meta:"🎹 Métaphore : vi a deux casquettes — chef d'orchestre (mode commande : on donne des ordres) et pianiste (mode insertion : on écrit les notes). La touche i fait passer de l'un à l'autre.",
+    cmd:"i",
+    explain:[
+      ["i","« insert » : passe en mode insertion. En bas de l'écran apparaît -- INSERTION -- et là, tu peux enfin écrire ton texte !"]
+    ],
+    check:c=>/^i$/.test(c),
+    output:[["vi","-- INSERTION --"],["ok","✅ Mode insertion activé ! Maintenant, écris la première ligne du script."]]
+  },
   {
     mode:'file',
-    title:"🤖 Mission bonus 1/3 — Crée ton script !",
-    desc:"Tu as tout fait à la main... Imagine refaire ça sur 50 serveurs ! Un DBA écrit un SCRIPT : un fichier qui rejoue toutes les commandes automatiquement. Première ligne obligatoire : dire à l'ordinateur quel langage utiliser.",
-    meta:"📖 Métaphore : un script, c'est une recette de cuisine écrite noir sur blanc. La première ligne « #!/bin/bash » dit : « cette recette se lit en langage Bash ». On l'appelle le shebang !",
+    title:"🤖 Mission bonus 3/6 — Le shebang",
+    desc:"Première ligne obligatoire de tout script : dire à l'ordinateur quel langage utiliser. C'est le fameux « shebang ».",
+    meta:"📖 Métaphore : un script, c'est une recette de cuisine. La première ligne « #!/bin/bash » dit : « cette recette se lit en langage Bash ». Sans elle, l'ordinateur ne sait pas comment lire la suite !",
     cmd:"#!/bin/bash",
+    explain:[
+      ["#!","Le « shebang » : ces deux caractères magiques en début de fichier annoncent l'interpréteur."],
+      ["/bin/bash","Le chemin vers Bash, le langage des scripts du terminal Linux."]
+    ],
     check:c=>/^#!\/bin\/bash$/.test(c),
-    output:[["info","→ ligne 1 ajoutée au fichier mon_script.sh"],["ok","✅ Le shebang est posé ! Ton fichier sait maintenant qu'il parle Bash."]]
+    output:[["vi","#!/bin/bash"],["ok","✅ Le shebang est posé ! Ton fichier sait maintenant qu'il parle Bash."]]
   },
   {
     mode:'file',
-    title:"🤖 Mission bonus 2/3 — Ajoute l'installation",
-    desc:"Deuxième ligne du script : l'installation du moteur. Exactement la même commande que la mission 1 — c'est ça l'automatisation : recopier ce qu'on sait déjà faire !",
-    meta:"📝 Métaphore : tu écris dans la recette : « Étape 1 — préchauffer le four ». La prochaine fois, plus besoin de réfléchir : la recette s'en souvient pour toi.",
+    title:"🤖 Mission bonus 4/6 — La ligne d'installation",
+    desc:"Deuxième ligne : l'installation du moteur. C'est la même commande que la mission 1, avec une option en plus : -y.",
+    meta:"📝 Métaphore : tu écris dans la recette « Étape 1 — préchauffer le four ». La prochaine fois, plus besoin de réfléchir : la recette s'en souvient pour toi.",
     cmd:"sudo apt install -y postgresql",
+    explain:[
+      ["sudo apt install","Comme à la mission 1 : installer un logiciel en tant qu'administrateur."],
+      ["-y","« yes » : répond OUI automatiquement à toutes les questions. Indispensable : un script ne doit JAMAIS attendre un humain !"],
+      ["postgresql","Toujours notre moteur 🐘."]
+    ],
     check:c=>/^sudo\s+apt(-get)?\s+install\s+-y\s+postgresql$/.test(c),
-    output:[["info","→ ligne 2 ajoutée au fichier mon_script.sh"],["ok","✅ Le « -y » répond « oui » automatiquement — un script ne doit jamais attendre un humain !"]]
+    output:[["vi","sudo apt install -y postgresql"],["ok","✅ Ligne 2 écrite ! Plus qu'une ligne et la recette est complète."]]
   },
   {
     mode:'file',
-    title:"🤖 Mission bonus 3/3 — Ajoute la création de la base",
-    desc:"Dernière ligne : créer la base ET l'utilisateur en une commande. L'astuce psql -c permet d'envoyer du SQL directement depuis le script, sans connexion manuelle.",
-    meta:"🎼 Métaphore : ta recette est complète ! Comme un chef d'orchestre, le script enchaîne toutes les étapes tout seul, dans le bon ordre, sans fausse note — sur 1 ou 1000 serveurs.",
+    title:"🤖 Mission bonus 5/6 — La création de la base",
+    desc:"Dernière ligne du script : créer la base. L'option -c de psql permet d'envoyer une commande SQL directement, sans ouvrir de session interactive.",
+    meta:"🎼 Métaphore : ta recette est complète ! Comme un chef d'orchestre, le script enchaînera toutes les étapes tout seul, dans le bon ordre — sur 1 ou 1000 serveurs.",
     cmd:'sudo -u postgres psql -c "CREATE DATABASE lycee;"',
+    explain:[
+      ["sudo -u postgres","Exécute la commande EN TANT QUE l'utilisateur postgres (le super-DBA du moteur)."],
+      ["psql -c","« command » : exécute la commande SQL qui suit, puis rend la main. Parfait pour les scripts !"],
+      ['"CREATE DATABASE lycee;"',"Notre SQL de la mission 3, entre guillemets pour que Bash le transmette d'un bloc."]
+    ],
     check:c=>/^sudo\s+-u\s+postgres\s+psql\s+-c\s+"create\s+database\s+lycee;"$/i.test(c),
-    output:[["info","→ ligne 3 ajoutée au fichier mon_script.sh"],["ok","✅ TON SCRIPT EST COMPLET ! Lance-le avec « bash mon_script.sh » et tout se rejoue automatiquement. 🚀"]]
+    output:[["vi",'sudo -u postgres psql -c "CREATE DATABASE lycee;"'],["ok","✅ Le script est écrit ! Reste à le SAUVEGARDER et quitter vi... le moment que tout le monde redoute 😄"]]
+  },
+  {
+    mode:'vi',
+    title:"🤖 Mission bonus 6/6 — Sauvegarder et quitter vi",
+    desc:"La blague la plus célèbre d'Internet : « comment quitter vi ?! ». D'abord la touche Échap pour sortir du mode insertion (on l'a fait pour toi), puis la commande magique :wq",
+    meta:"🚪 Métaphore : Échap = le pianiste repose ses mains et redevient chef d'orchestre. Puis :wq = « write » (sauvegarde la partition) et « quit » (ferme le carnet). Ton script est prêt !",
+    cmd:":wq",
+    explain:[
+      [":","Annonce une commande à vi (le chef d'orchestre écoute)."],
+      ["w","« write » : écrit (sauvegarde) le fichier sur le disque."],
+      ["q","« quit » : quitte l'éditeur et retourne au terminal."]
+    ],
+    check:c=>/^:wq$/.test(c),
+    output:[["vi",'"mon_script.sh" 3 lignes écrites'],["ok","🎉 TON SCRIPT EST PRÊT ! Lance-le avec « bash mon_script.sh » et tout se rejoue automatiquement, sur n'importe quel serveur. C'est ça, l'automatisation ! 🚀"]]
   }
 ];
 
-const PROMPTS = { shell:['$',''], sql:['lycee=#',' sql'], file:['script>',' file'] };
-const CMDCLS  = { shell:'cmd', sql:'sqlcmd', file:'filecmd' };
+const PROMPTS = { shell:['$',''], sql:['lycee=#',' sql'], file:['~',' file'], vi:['',' vi'] };
+const CMDCLS  = { shell:'cmd', sql:'sqlcmd', file:'filecmd', vi:'vicmd' };
+const TITLES  = { shell:'dba-server — terminal', sql:'dba-server — psql', file:'vi — mon_script.sh — INSERTION', vi:'vi — mon_script.sh' };
 
 let current = 0, score = 0, missionPts = 100;
 const termBody = document.getElementById('termBody');
@@ -323,6 +474,9 @@ function renderMission() {
   document.getElementById('mDesc').textContent = st.desc;
   document.getElementById('mMeta').textContent = st.meta;
   document.getElementById('mCmd').textContent = st.cmd;
+  document.getElementById('mExplain').innerHTML = st.explain.map(([k, v]) =>
+    `<tr><td class="k">${k}</td><td class="v">${v}</td></tr>`).join('');
+  document.getElementById('termTitle').textContent = TITLES[st.mode];
   promptEl.textContent = PROMPTS[st.mode][0];
   promptEl.className = 'prompt' + PROMPTS[st.mode][1];
 }
@@ -342,7 +496,7 @@ function loseMissionPts(n) {
 
 function useHint() {
   loseMissionPts(20);
-  print('pts', '💡 Indice : recopie exactement la commande affichée dans l\'encadré vert « COMMANDE À TAPER » au-dessus du terminal. Attention aux espaces et au point-virgule ! (-20 pts)');
+  print('pts', '💡 Indice : recopie exactement la commande affichée dans l\'encadré « COMMANDE À TAPER », puis relis le tableau « CHAQUE MOT EXPLIQUÉ » pour comprendre. Attention aux espaces, apostrophes et au point-virgule ! (-20 pts)');
 }
 
 input.addEventListener('keydown', (e) => {
@@ -369,7 +523,7 @@ input.addEventListener('keydown', (e) => {
     const errs = [
       "Hmm, pas tout à fait. Compare bien avec la commande affichée en clair ! (-10 pts)",
       "Commande non reconnue. Vérifie chaque caractère — les ordinateurs sont pointilleux ! (-10 pts)",
-      "Presque ! Regarde l'encadré « COMMANDE À TAPER » (et le point-virgule en SQL 😉). (-10 pts)"
+      "Presque ! Regarde l'encadré « COMMANDE À TAPER » (et les apostrophes / le point-virgule 😉). (-10 pts)"
     ];
     print('err', '❌ ' + errs[Math.floor(Math.random() * errs.length)]);
   }
@@ -384,7 +538,7 @@ function showVictory() {
   const rank = score >= max * 0.9 ? '🥇 DBA Experte' : score >= max * 0.7 ? '🥈 DBA Confirmée' : '🥉 DBA Junior — continue à t\'entraîner !';
   document.getElementById('rankEl').textContent = 'Rang : ' + rank;
   document.getElementById('scriptFinal').innerHTML =
-    '<div class="ttl">📜 Le script que TU as écrit (mon_script.sh) :</div>' +
+    '<div class="ttl">📜 Le script que TU as écrit dans vi (mon_script.sh) :</div>' +
     '#!/bin/bash\nsudo apt install -y postgresql\nsudo -u postgres psql -c "CREATE DATABASE lycee;"';
 }
 </script>
