@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Le Métier de DBA — Suong NGUYEN</title>
+<title>Les Métiers de DBA — Suong NGUYEN</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
 <style>
@@ -45,7 +45,7 @@ code,.mono { font-family:'Space Mono',monospace; }
 
 .codebox { background:var(--dark); border-radius:10px; padding:12px 16px; font-family:'Space Mono',monospace; font-size:.8em; line-height:1.5; color:#86EFAC; white-space:pre; overflow-x:auto; }
 .codebox.violet { color:#C4B5FD; }
-.codebox .hd { color:#9CA3AF; font-family:'Outfit',sans-serif; margin-bottom:6px; }
+.codebox .hd { display:block; color:#9CA3AF; font-family:'Outfit',sans-serif; margin-bottom:8px; }
 
 table.mini { border-collapse:collapse; width:100%; font-size:.9em; }
 table.mini th { background:var(--purple); color:var(--white); padding:5px 8px; }
@@ -66,7 +66,7 @@ ul.compact { font-size:.88em; line-height:1.7; }
 .bigletter { width:90px; height:90px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5em; font-weight:900; color:var(--white); margin:0 auto; }
 .trans { margin-top:16px; font-size:.85em; font-style:italic; font-weight:700; text-align:right; color:var(--purple); }
 section.dark .trans { color:#C4B5FD; }
-.schema { display:flex; align-items:center; justify-content:center; gap:10px; background:#fff; border:2px solid var(--purple-m); border-radius:14px; padding:10px 16px; margin:10px 0; }
+.schema { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; background:#fff; border:2px solid var(--purple-m); border-radius:14px; padding:10px 16px; margin:10px 0; max-width:100%; }
 .schema .step { text-align:center; font-size:.8em; font-weight:600; color:var(--dark); }
 .schema .step .em { font-size:2.2em; display:block; }
 .schema .arr { font-size:1.3em; color:var(--purple); font-weight:900; }
@@ -79,11 +79,10 @@ section.dark .schema .step { color:#fff; }
 
 <!-- 1 ── TITRE -->
 <section class="dark" data-background-color="#1E1B4B" style="text-align:center">
-  <p style="margin-top:40px"><span style="background:var(--pink);color:#fff;padding:6px 22px;border-radius:4px;font-size:.8em;font-weight:700;letter-spacing:3px">MÉTIER &amp; TECHNOLOGIES</span></p>
-  <p style="color:#C4B5FD;font-size:1em;margin:18px 0 0">Le Métier de</p>
+  <p style="margin-top:40px"><span style="background:var(--pink);color:#fff;padding:6px 22px;border-radius:4px;font-size:.8em;font-weight:700;letter-spacing:3px">MÉTIERS &amp; TECHNOLOGIES</span></p>
+  <p style="color:#C4B5FD;font-size:1em;margin:18px 0 0">Les Métiers de</p>
   <h1 style="font-size:3.2em;font-weight:900;color:#fff;margin:0">DBA</h1>
   <p style="color:#C4B5FD;font-size:.9em;margin-top:50px">Thu Tuyet Suong NGUYEN<br/><span style="color:#6D6A8F;font-size:.95em">@ Squad SGBD — CDC Informatique &nbsp;•&nbsp; 2026</span></p>
-  <p class="trans">👉 Avant de commencer, prends le lien de la présentation...</p>
 </section>
 
 <!-- 2 ── QR CODE & LIENS -->
@@ -94,7 +93,7 @@ section.dark .schema .step { color:#fff; }
   </div>
   <p style="font-size:.92em;margin:8px 0 4px">Scanne le QR code avec ton téléphone 📱</p>
   <p style="font-size:.88em;margin:14px 0 0">
-    🌐 <b>La page :</b> <a href="https://nttsuong1302.github.io/dba-presentation/" style="color:#C4B5FD">nttsuong1302.github.io/dba-presentation</a><br/>
+    🎤 <b>La présentation :</b> <a href="https://nttsuong1302.github.io/dba-presentation/presentation.html" style="color:#C4B5FD">nttsuong1302.github.io/dba-presentation/presentation.html</a><br/>
     🎮 <b>Le jeu :</b> <a href="https://nttsuong1302.github.io/dba-presentation/missiondba.html" style="color:#C4B5FD">nttsuong1302.github.io/dba-presentation/missiondba.html</a>
   </p>
   <p style="font-size:.8em;color:#6D6A8F;margin-top:18px">Garde le lien sous la main pendant toute la présentation ! 💜</p>
@@ -123,8 +122,7 @@ section.dark .schema .step { color:#fff; }
     <div><div class="bigletter" style="background:var(--pink)">B</div><p style="font-size:.9em;font-weight:700;margin:10px 0 2px">Base</p><p style="font-size:.8em;color:#C4B5FD;margin:0">L'endroit où sont rangées les données</p></div>
     <div><div class="bigletter" style="background:var(--teal)">A</div><p style="font-size:.9em;font-weight:700;margin:10px 0 2px">Administrator</p><p style="font-size:.8em;color:#C4B5FD;margin:0">La personne qui administre</p></div>
   </div>
-  <p style="background:var(--purple);border-radius:12px;padding:14px;font-size:1.05em;font-weight:900;margin-top:26px">DBA = Administrateur de Bases de Données</p>
-  <p style="font-size:.88em;color:#C4B5FD;font-style:italic">Mais qu'est-ce que ça veut dire concrètement ? C'est ce qu'on va découvrir ensemble ! 🚀</p>
+  <p style="background:var(--purple);border-radius:12px;padding:14px;font-size:1.05em;font-weight:900;margin-top:26px">DBA = Administrateur / Administratrice de Bases de Données</p>
   <p class="trans">👉 Mais d'abord... qui suis-je pour t'en parler ?</p>
 </section>
 
@@ -160,7 +158,6 @@ section.dark .schema .step { color:#fff; }
   </div>
   <p class="banner darkbg" style="margin-top:16px">🙋 N'hésite pas à poser des questions à tout moment — c'est fait pour ça !</p>
   <p style="text-align:center;font-size:.88em;margin-top:10px">
-    🔗 <b>Le dépôt :</b> <a href="https://github.com/nttsuong1302/dba-presentation" style="color:var(--purple);font-weight:700">github.com/nttsuong1302/dba-presentation</a><br/>
     🎤 <b>La présentation :</b> <a href="https://nttsuong1302.github.io/dba-presentation/presentation.html" style="color:var(--purple);font-weight:700">nttsuong1302.github.io/dba-presentation/presentation.html</a><br/>
     🎮 <b>Le jeu :</b> <a href="https://nttsuong1302.github.io/dba-presentation/missiondba.html" style="color:var(--purple);font-weight:700">nttsuong1302.github.io/dba-presentation/missiondba.html</a>
   </p>
@@ -179,7 +176,7 @@ section.dark .schema .step { color:#fff; }
   <div class="schema">
     <div class="step"><span class="em">📱</span>Tu utilises ton téléphone</div>
     <div class="arr">➜</div>
-    <div class="step"><span class="em">🌐</span>L'info voyage sur Internet</div>
+    <div class="step"><span class="em">🌐</span>L'information voyage sur Internet</div>
     <div class="arr">➜</div>
     <div class="step"><span class="em">🗄️</span>Elle est stockée comme donnée</div>
   </div>
@@ -212,7 +209,7 @@ section.dark .schema .step { color:#fff; }
     <div>
       <div class="card cwhite" style="margin-bottom:8px"><h4>📦 Un conteneur organisé</h4>Les données sont rangées en tableaux (tables) avec des lignes et colonnes</div>
       <div class="card cwhite" style="margin-bottom:8px"><h4>🔗 Des tables liées</h4>Les tables se parlent entre elles : un élève a plusieurs notes, plusieurs cours...</div>
-      <div class="card cwhite"><h4>⚡ Recherche ultra-rapide</h4>Retrouver 1 info parmi 10 millions en moins d'1 milliseconde</div>
+      <div class="card cwhite"><h4>⚡ Recherche ultra-rapide</h4>Retrouver 1 information parmi 10 millions en moins d'1 milliseconde</div>
       <div class="schema" style="margin-top:10px">
         <div class="step"><span class="em">📄</span>Une fiche<br/>(ligne)</div>
         <div class="arr">➜</div>
@@ -228,6 +225,7 @@ section.dark .schema .step { color:#fff; }
         <tr><td>Clara</td><td>2nde A</td><td>18</td></tr><tr><td>David</td><td>2nde C</td><td>12</td></tr></table>
     </div>
   </div>
+  <p class="banner lightyellow" style="margin-top:10px">🤯 Fun fact : YouTube retrouve 1 vidéo parmi plus de 14 milliards en moins d'une seconde — grâce à des bases de données !</p>
   <p class="trans">👉 Mais qui fait vivre cette bibliothèque ? Le moteur !</p>
 </section>
 
@@ -238,7 +236,7 @@ section.dark .schema .step { color:#fff; }
   <div class="grid2">
     <div>
       <div class="card cyellow" style="margin-bottom:10px"><h4>📚 Métaphore : le bibliothécaire</h4>La base de données, c'est la bibliothèque (les livres et les rayons). Le moteur (SGBD), c'est le bibliothécaire : sans lui, personne ne range, ne retrouve ni ne protège les livres.</div>
-      <div class="card cteal"><h4>🎓 Les distributions = des bibliothécaires formés à la même école</h4>Tous ont appris la même méthode de base (PostgreSQL), mais chacun a sa spécialité en plus : l'un est expert en sécurité, l'autre travaille dans le cloud... Même formation, spécialités différentes !</div>
+      <div class="card cteal"><h4>🎓 Chaque distribution = un bibliothécaire avec sa spécialité</h4>Tous savent gérer la bibliothèque de la même façon (PostgreSQL), mais chacun a sa spécialité : l'un est expert en sécurité, l'autre en très grandes bibliothèques, le troisième travaille dans le cloud...</div>
     </div>
     <div>
       <div class="schema" style="margin:0 0 10px">
@@ -284,17 +282,16 @@ section.dark .schema .step { color:#fff; }
     <div class="card cteal"><h4>🌐 Le réseau</h4><b>= Les routes</b><br/>Les requêtes voyagent sur le réseau entre les utilisateurs et la BDD. Si la route est coupée ou embouteillée, plus personne n'accède aux données !</div>
     <div class="card cpink"><h4>📱 Les applications</h4><b>= Les lecteurs</b><br/>Sites web, applis mobiles, logiciels : ce sont eux qui posent les questions SQL à la BDD, des milliers de fois par seconde.</div>
   </div>
-  <div class="card cwhite" style="margin-top:12px"><h4>🎬 Cas concret : comment Netflix gère ses bases de données</h4>
-  Quand tu appuies sur « lecture », plusieurs BDD travaillent ensemble : une retient <b>ton profil et ta liste</b>, une autre note <b>où tu t'es arrêtée dans l'épisode</b>, une troisième analyse <b>ce que tu regardes pour te recommander des séries</b>. Le tout réparti sur des <b>milliers de serveurs dans le monde</b>, pour que ça réponde en quelques millisecondes — et les DBA de Netflix veillent à ce que rien ne tombe en panne, même un samedi soir à 21h ! 🍿</div>
-  <div class="schema" style="margin-top:10px">
-    <div class="step"><span class="em">📱</span>Application<br/>(Netflix)</div>
-    <div class="arr">⇄</div>
-    <div class="step"><span class="em">🌐</span>Réseau</div>
-    <div class="arr">⇄</div>
-    <div class="step"><span class="em">🖥️</span>Serveur<br/>(système)</div>
-    <div class="arr">⇄</div>
-    <div class="step"><span class="em">🐘</span>Base de<br/>données</div>
+  <div class="schema" style="margin-top:12px">
+    <div class="step"><span class="em">📱</span>1. L'application<br/>pose une question</div>
+    <div class="arr">➜</div>
+    <div class="step"><span class="em">🌐</span>2. La demande voyage<br/>sur le réseau</div>
+    <div class="arr">➜</div>
+    <div class="step"><span class="em">🖥️</span>3. Le serveur<br/>la reçoit</div>
+    <div class="arr">➜</div>
+    <div class="step"><span class="em">🐘</span>4. La BDD répond<br/>(et la réponse refait<br/>le chemin inverse)</div>
   </div>
+  <p class="banner lightyellow" style="margin-top:10px">🤯 Fun fact : quand tu envoies un message, il traverse une dizaine de machines (réseau, serveurs, BDD) avant d'arriver — en moins d'une demi-seconde !</p>
   <p class="trans">👉 Maintenant, apprenons à parler aux données : voici SQL !</p>
 </section>
 
@@ -330,7 +327,7 @@ ORDER BY note DESC;</div>
   <h2>Le DBA — Gardien des Données</h2>
   <div style="display:grid;grid-template-columns:110px 1fr;gap:18px;align-items:center;margin-bottom:14px">
     <div style="width:100px;height:100px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:1.8em">🛡️</div>
-    <div><b style="font-size:.75em">Database Administrator</b><p style="font-size:.86em;color:var(--muted);margin:4px 0 0">Expert technique dont la mission est de s'assurer que les bases de données fonctionnent, sont sécurisées, performantes et disponibles 24h/24.</p></div>
+    <div><b style="font-size:.75em">Administrateur / Administratrice des données</b><p style="font-size:.86em;color:var(--muted);margin:4px 0 0">Expert technique dont la mission est de s'assurer que les bases de données fonctionnent, sont sécurisées, performantes et disponibles 24h/24.</p></div>
   </div>
   <div class="grid4">
     <div class="card cpurple" style="text-align:center"><div class="ic">⚙️</div><h4>Technique</h4>Installe et configure les systèmes</div>
@@ -338,7 +335,6 @@ ORDER BY note DESC;</div>
     <div class="card cgreen" style="text-align:center"><div class="ic">📈</div><h4>Performance</h4>Optimise la rapidité des requêtes</div>
     <div class="card cyellow" style="text-align:center"><div class="ic">🔁</div><h4>Disponibilité</h4>Évite les pannes et pertes de données</div>
   </div>
-  <p class="banner darkbg" style="margin-top:14px">🎯 Le DBA travaille avec des développeurs, des sysadmins, des équipes métier et la direction.</p>
   <p class="trans">👉 Quelles compétences faut-il pour devenir DBA ?</p>
 </section>
 
@@ -349,9 +345,9 @@ ORDER BY note DESC;</div>
     <div>
       <p class="banner purple" style="margin-bottom:8px">🧠 Compétences techniques</p>
       <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">🗄️ SQL et les moteurs de BDD (PostgreSQL, Oracle...)</div>
-      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">🐧 Linux : la plupart des serveurs tournent dessus</div>
-      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">📜 Scripting : Bash, Python pour automatiser</div>
-      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">☁️ Le Cloud : AWS, Azure, GCP</div>
+      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">🐧 Linux et Windows : les systèmes qui font tourner les serveurs</div>
+      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">📜 Développement : Bash, Python pour automatiser</div>
+      <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">🧩 Compréhension de l'ensemble du système d'information : applications, réseaux, serveurs</div>
       <div class="smallrow" style="background:#fff;border:1px solid var(--purple-m)">🌐 Réseaux et sécurité informatique</div>
     </div>
     <div>
@@ -369,6 +365,28 @@ ORDER BY note DESC;</div>
 <!-- 16 ── QCM RÔLE DBA -->
 <section class="dark" data-background-color="#312E81" data-qcm="1"></section>
 
+<!-- ── ARCHITECTURE : LA BDD DANS LE SYSTÈME D'INFORMATION ── -->
+<section>
+  <h2>Où est la BDD dans le Système d'Information ?</h2>
+  <p class="banner teal">🗺️ Avant de voir les missions, situons le terrain de jeu du DBA : la BDD est au fond du système d'information, et tout repose sur elle !</p>
+  <div class="schema" style="margin-top:14px;padding:16px">
+    <div class="step"><span class="em">🙋</span>Utilisateurs<br/><i>élèves, profs...</i></div>
+    <div class="arr">➜</div>
+    <div class="step"><span class="em">📱</span>Applications<br/><i>site, appli mobile</i></div>
+    <div class="arr">➜</div>
+    <div class="step"><span class="em">🌐</span>Réseau<br/><i>Internet, wifi</i></div>
+    <div class="arr">➜</div>
+    <div class="step"><span class="em">🖥️</span>Serveurs<br/><i>système Linux/Windows</i></div>
+    <div class="arr">➜</div>
+    <div class="step" style="border:2px solid var(--purple);border-radius:12px;padding:6px 10px"><span class="em">🐘</span><b>Base de données</b><br/><i>le coffre-fort des données</i></div>
+  </div>
+  <div class="grid2" style="margin-top:12px">
+    <div class="card cpurple"><h4>🛡️ Le domaine du DBA</h4>La base de données et son serveur : c'est la couche la plus profonde — si elle tombe, TOUT le reste tombe avec elle.</div>
+    <div class="card cteal"><h4>🤝 Les voisins du DBA</h4>Chaque couche a ses experts (développeurs, administrateurs réseau et système...) : le DBA collabore avec tous.</div>
+  </div>
+  <p class="trans">👉 Maintenant, les 6 grandes missions du DBA, une par une !</p>
+</section>
+
 <!-- 17-22 ── MISSIONS (une par slide, générées en JS) -->
 <section data-missions="0"></section>
 <section data-missions="1"></section>
@@ -379,6 +397,24 @@ ORDER BY note DESC;</div>
 
 <!-- 20 ── QCM LENTEUR -->
 <section class="dark" data-background-color="#312E81" data-qcm="2"></section>
+
+<!-- ── LE PROBLÈME : POURQUOI AUTOMATISER ? ── -->
+<section class="dark" data-background-color="#1E1B4B">
+  <h2>🔥 Vendredi, 17h59... le problème !</h2>
+  <p class="banner pink">Une faille de sécurité critique vient d'être découverte : il faut mettre à jour les 200 bases de données de l'entreprise avant lundi matin.</p>
+  <div class="schema" style="margin-top:14px">
+    <div class="step"><span class="em">🗄️</span>200 BDD<br/>à mettre à jour</div>
+    <div class="arr">✖️</div>
+    <div class="step"><span class="em">⏱️</span>20 minutes<br/>par serveur, à la main</div>
+    <div class="arr">=</div>
+    <div class="step"><span class="em">😱</span>66 heures<br/>de travail non-stop !</div>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="card" style="background:rgba(233,69,96,.12);border-color:var(--pink)"><h4 style="color:#F9A8D4">😰 À la main</h4>66 heures sans dormir, des erreurs de fatigue garanties, et impossible de savoir où on en est... Mission impossible !</div>
+    <div class="card" style="background:rgba(6,214,160,.12);border-color:#6EE7B7"><h4 style="color:#6EE7B7">🤖 Automatisé</h4>Un programme applique la mise à jour sur les 200 serveurs en parallèle : terminé en 30 minutes, avec un rapport complet.</div>
+  </div>
+  <p class="trans">👉 C'est exactement pour ça que le DBA moderne automatise. Voyons pourquoi en détail...</p>
+</section>
 
 <!-- 21 ── POURQUOI AUTOMATISER -->
 <section class="dark" data-background-color="#1E1B4B">
@@ -405,37 +441,10 @@ ORDER BY note DESC;</div>
     <div style="border:2px solid var(--yellow);border-radius:10px;overflow:hidden;text-align:center"><p style="background:var(--yellow);color:#1E1B4B;font-size:.9em;font-weight:700;margin:0;padding:5px">2025+</p><p style="font-size:1.4em;margin:10px 0 4px">🧠</p><p style="font-size:.9em;font-weight:700;margin:0 0 12px">IA</p></div>
   </div>
   <p class="banner purple" style="margin-top:18px;text-align:center">🎯 Aujourd'hui : automatiser = survie ! Un DBA gère des centaines de BDD simultanément.</p>
-  <p class="trans">👉 Zoom sur la vague qui a tout changé : c'est quoi concrètement le Cloud ?</p>
-</section>
-
-<!-- 23 ── CLOUD -->
-<section>
-  <h2>Le Cloud : Louer au Lieu d'Acheter</h2>
-  <p class="banner purple">📚 Métaphore : le Cloud, c'est comme emprunter à la médiathèque au lieu d'acheter tous tes livres — tu utilises sans posséder !</p>
-  <div class="grid2">
-    <div>
-      <p style="background:#FEE2E2;color:#991B1B;font-weight:700;font-size:.88em;text-align:center;padding:8px;border-radius:8px;margin:0 0 6px">❌ AVANT — Serveurs physiques</p>
-      <div class="smallrow" style="background:#FFF1F2;color:#7F1D1D">💸 Acheter des serveurs très chers</div>
-      <div class="smallrow" style="background:#FFF1F2;color:#7F1D1D">🏢 Les stocker dans vos locaux</div>
-      <div class="smallrow" style="background:#FFF1F2;color:#7F1D1D">👩‍💻 Embaucher personnel 24h/24</div>
-      <div class="smallrow" style="background:#FFF1F2;color:#7F1D1D">😰 Payer même si inutilisé</div>
-    </div>
-    <div>
-      <p style="background:var(--green-l);color:#065F46;font-weight:700;font-size:.88em;text-align:center;padding:8px;border-radius:8px;margin:0 0 6px">✅ APRÈS — Cloud</p>
-      <div class="smallrow" style="background:#ECFDF5;color:#064E3B">🌐 Louer les ressources à la demande</div>
-      <div class="smallrow" style="background:#ECFDF5;color:#064E3B">☁️ Tout chez AWS, Azure, Google...</div>
-      <div class="smallrow" style="background:#ECFDF5;color:#064E3B">🔧 Le fournisseur gère la maintenance</div>
-      <div class="smallrow" style="background:#ECFDF5;color:#064E3B">💰 On paie uniquement ce qu'on utilise</div>
-    </div>
-  </div>
-  <div class="schema" style="margin-top:10px">
-    <div class="step"><span class="em">🏢</span>Avant : ses propres serveurs<br/>(acheter tous les livres)</div>
-    <div class="arr">➜</div>
-    <div class="step"><span class="em">☁️</span>Maintenant : le Cloud<br/>(emprunter à la médiathèque)</div>
-  </div>
-  <p class="banner lightteal" style="margin-top:8px">☁️ AWS RDS, Azure SQL, Google Cloud SQL : des services Cloud spécialement conçus pour les bases de données.</p>
   <p class="trans">👉 Voyons maintenant quelles tâches du DBA reviennent sans cesse...</p>
 </section>
+
+
 
 <!-- 25 ── TÂCHES RÉPÉTITIVES -->
 <section>
@@ -573,7 +582,7 @@ echo "Backup terminé : $DATE"</div>
 <section class="dark" data-background-color="#1E1B4B">
   <h2>Ce qu'on a appris aujourd'hui 🎓</h2>
   <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">💡 Une donnée = une information numérique ; une BDD = le conteneur organisé qui la stocke</div>
-  <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">🛡️ Le DBA gère, sécurise et optimise les BDD (installation, backup, accès, perf, migration)</div>
+  <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">🛡️ Le DBA gère, sécurise et optimise les BDD (installation, sauvegarde, accès, performance, migration)</div>
   <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">☁️ Le Cloud permet de louer des ressources à la demande — le DBA doit s'y adapter</div>
   <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">🔁 Scripts Bash/Python = 1er pas vers l'automatisation, mais fragiles et non-idempotents</div>
   <div class="smallrow" style="background:rgba(255,255,255,.09);border:1px solid #7C3AED">🤖 Ansible automatise la config de 1000 serveurs en décrivant l'état voulu (idempotent)</div>
@@ -624,21 +633,27 @@ document.querySelectorAll("[data-qcm]").forEach(sec => {
 // ── Missions DBA (1 slide par mission) ──
 const MISSIONS = [
   { icon:"🏗️", cls:"cpurple", title:"Installation & Configuration",
+    sch:[["📦","1. Installer le logiciel"],["⚙️","2. Configurer mémoire et disques"],["🧪","3. Tester la connexion"],["✅","4. Prêt à l'emploi !"]],
     meta:"📚 Comme aménager une nouvelle bibliothèque : monter les étagères, définir les règles de classement et préparer les cartes de lecteurs avant l'ouverture.",
     actions:["Choisir et installer le SGBD (Oracle, PostgreSQL...)","Configurer mémoire, disques, paramètres réseau","Créer les schémas, tablespaces et utilisateurs initiaux","Valider l'installation via des tests de connexion"] },
   { icon:"💾", cls:"cgreen", title:"Sauvegarde & Restauration",
+    sch:[["🐘","Base de données"],["💾","Copie de sauvegarde"],["🏦","Stockage en lieu sûr"],["♻️","Restauration si besoin"]],
     meta:"📚 Comme photocopier les registres chaque soir : si un dégât des eaux détruit un rayon, on reconstitue tout à l'identique.",
     actions:["Planifier des sauvegardes auto (nuit, hebdo, mensuel)","Tester les restaurations régulièrement (oui, tester !)","Surveiller l'espace disque consommé par les backups","Documenter les procédures de récupération d'urgence"] },
   { icon:"🔐", cls:"cpink", title:"Gestion des Accès & Sécurité",
+    sch:[["🙋","Un utilisateur arrive"],["🔑","Le DBA crée son badge"],["🚪","Seules SES portes s'ouvrent"],["📋","Tout est tracé"]],
     meta:"📚 Comme les badges des lecteurs : chacun n'ouvre que les salles auxquelles il a droit — la réserve des livres précieux reste fermée !",
     actions:["Créer des comptes utilisateurs avec les bons droits","Appliquer le principe du moindre privilège","Auditer les connexions suspectes dans les logs","Révoquer immédiatement les accès des employés qui partent"] },
   { icon:"🚀", cls:"corange", title:"Optimisation des Performances",
+    sch:[["🐢","Requête lente détectée"],["🔍","Analyse du plan d'exécution"],["🔖","Création d'un index"],["⚡","Réponse 100× plus rapide"]],
     meta:"📚 Comme réorganiser les rayons et le catalogue : chaque livre doit être trouvé en quelques secondes, même aux heures de pointe.",
     actions:["Identifier les requêtes SQL lentes avec les plans d'exécution","Créer des index pour accélérer les recherches fréquentes","Surveiller l'utilisation CPU, RAM, I/O disque en temps réel","Proposer des corrections au code SQL si nécessaire"] },
   { icon:"📊", cls:"cteal", title:"Supervision & Alertes",
+    sch:[["📡","Surveillance en continu"],["🚨","Une alerte se déclenche"],["👩‍💻","Le DBA intervient"],["✅","Service rétabli"]],
     meta:"📚 Comme le gardien qui fait sa ronde : il surveille les alarmes, vérifie chaque salle et intervient à toute heure si un problème survient.",
     actions:["Configurer des alertes : espace disque < 10%, CPU > 90%...","Consulter les logs d'erreurs chaque matin (le café du DBA !)","Créer des tableaux de bord de monitoring (Grafana, OEM...)","Répondre aux incidents 24h/24 si la BDD tombe en panne"] },
   { icon:"🔄", cls:"cyellow", title:"Migration & Mise à Jour",
+    sch:[["📋","Audit de l'existant"],["🧪","Test sur environnement de répétition"],["🚚","Bascule planifiée"],["🎉","Aucune interruption !"]],
     meta:"📚 Comme déménager la bibliothèque dans un nouveau bâtiment : sans fermer un seul jour et sans perdre un seul livre.",
     actions:["Auditer l'existant : taille, dépendances, contraintes techniques","Planifier la migration pour éviter toute interruption de service","Tester la migration sur un environnement de recette en premier","Basculer en production avec un plan de rollback en cas d'échec"] },
 ];
@@ -651,7 +666,9 @@ document.querySelectorAll("[data-missions]").forEach(sec => {
         <div style="font-size:4.2em;line-height:1.2;background:#fff;border-radius:18px;padding:18px 0;box-shadow:0 4px 14px rgba(0,0,0,.1)">${m.icon}</div>
       </div>
       <div>
-        <div class="card ${m.cls}" style="margin-bottom:12px"><h4>Métaphore</h4>${m.meta}</div>
+        <div class="card ${m.cls}" style="margin-bottom:10px"><h4>Métaphore</h4>${m.meta}</div>
+        <div class="schema" style="margin:0 0 10px">${m.sch.map(([em, t], j) =>
+          `<div class="step"><span class="em">${em}</span>${t}</div>` + (j < m.sch.length - 1 ? '<div class="arr">➜</div>' : '')).join('')}</div>
         <div class="card cwhite"><h4>🛠️ Concrètement, le DBA :</h4>${m.actions.map(a => `▸ ${a}`).join("<br/>")}</div>
       </div>
     </div>
@@ -685,7 +702,7 @@ document.querySelectorAll("[data-indus]").forEach(sec => {
     `<p class="trans">${part === 0 ? "👉 La suite des piliers !" : "👉 Dernier quiz, puis le grand récap !"}</p>`;
 });
 
-Reveal.initialize({ hash:true, slideNumber:"c/t", width:1060, height:640, margin:0.04 });
+Reveal.initialize({ hash:true, slideNumber:"c/t", width:1060, height:640, margin:0.08 });
 </script>
 </body>
 </html>
