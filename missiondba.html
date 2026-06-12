@@ -139,7 +139,7 @@ footer { text-align:center; margin-top:30px; color:#55527A; font-size:.8rem; }
 <div class="wrap">
   <header>
     <h1>🎮 Mission <span>DBA</span></h1>
-    <p>Un jeu interactif hébergé sur GitHub Pages — deviens Administratrice de Bases de Données !</p>
+    <p>Un jeu interactif hébergé sur GitHub Pages — deviens Administrateur/Administratrice de Bases de Données !</p>
   </header>
 
   <!-- ════════ ÉCRAN D'ACCUEIL ════════ -->
@@ -166,6 +166,11 @@ footer { text-align:center; margin-top:30px; color:#55527A; font-size:.8rem; }
     <div class="multi">
       👥 <b>Jouable à plusieurs !</b> Ce jeu est une simple page web sur GitHub : chacun peut l'ouvrir sur
       son propre ordinateur ou téléphone avec le même lien. Pas d'installation, pas de compte.
+    </div>
+
+    <div class="multi" style="border-color:var(--cyan);color:var(--cyan)">
+      🧪 <b>C'est un jeu de SIMULATION !</b> Aucune vraie base de données ne tourne ici : le terminal imite
+      les réponses d'un vrai serveur pour t'apprendre les commandes, sans aucun risque. Tu peux tout essayer !
     </div>
 
     <div class="scoring">
@@ -629,20 +634,30 @@ function useHint() {
   }
 }
 
+let awaitingNext = false;
+
 function missionSuccess(st) {
   let delay = 250;
   st.output.forEach(([cls, line]) => { setTimeout(() => print(cls, line), delay); delay += 280; });
   score += missionPts;
   setTimeout(() => print('pts', `⭐ +${missionPts} points ! Total : ${score}`), delay);
   setTimeout(() => {
-    current++;
-    if (current >= STEPS.length) { showVictory(); }
-    else { renderAll(); if (STEPS[current].mode !== 'editor') print('info', '— Nouvelle mission affichée ci-dessus ⬆️ —'); }
-  }, delay + 2200);
+    awaitingNext = true;
+    print('info', '⏎  Appuie sur Entrée pour passer à la mission suivante...');
+    input.focus();
+  }, delay + 400);
+}
+
+function goNextMission() {
+  awaitingNext = false;
+  current++;
+  if (current >= STEPS.length) { showVictory(); }
+  else { renderAll(); }
 }
 
 input.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter') return;
+  if (awaitingNext) { input.value = ''; goNextMission(); return; }
   const raw = input.value.trim();
   input.value = '';
   if (!raw) return;
