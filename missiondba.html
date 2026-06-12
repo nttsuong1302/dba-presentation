@@ -90,10 +90,15 @@ header p { color:var(--gray); margin-top:6px; }
 .input-line .prompt.sql { color:var(--purple-l); }
 .input-line input { flex:1; background:transparent; border:none; outline:none; color:var(--white); font-family:'Space Mono',monospace; font-size:.88rem; caret-color:var(--green); }
 
-/* ════ Éditeur vi ════ */
-.vi-overlay { display:none; position:fixed; inset:0; background:rgba(13,13,26,.85); z-index:50; align-items:center; justify-content:center; padding:20px; }
-.vi-overlay.show { display:flex; }
-.vi-win { width:100%; max-width:760px; background:#000; border-radius:12px; overflow:hidden; border:2px solid var(--purple); box-shadow:0 20px 60px rgba(0,0,0,.6); }
+/* ════ Onglets du terminal ════ */
+.term-tabs { display:flex; gap:4px; margin-left:14px; }
+.ttab { font-family:'Space Mono',monospace; font-size:.78rem; color:var(--gray); background:#0d0d1a; border:1px solid #333; border-bottom:none; border-radius:8px 8px 0 0; padding:5px 14px; cursor:pointer; transition:all .2s; }
+.ttab.active { background:#000; color:var(--yellow); border-color:var(--purple); font-weight:700; }
+.ttab .close { margin-left:6px; color:var(--red); }
+
+/* ════ Éditeur vi (onglet) ════ */
+.vi-pane { display:none; }
+.vi-pane.show { display:block; }
 .vi-body { position:relative; }
 .vi-gutter { position:absolute; top:0; left:0; bottom:0; width:26px; padding:12px 0 0 8px; color:#444; font-family:'Space Mono',monospace; font-size:.9rem; line-height:1.6; pointer-events:none; white-space:pre; }
 .vi-text { width:100%; min-height:280px; background:#000; color:#E8E8F0; border:none; outline:none; resize:vertical; padding:12px 14px 12px 34px; font-family:'Space Mono',monospace; font-size:.95rem; line-height:1.6; caret-color:var(--yellow); display:block; }
@@ -135,7 +140,6 @@ footer { text-align:center; margin-top:30px; color:#55527A; font-size:.8rem; }
   <header>
     <h1>🎮 Mission <span>DBA</span></h1>
     <p>Un jeu interactif hébergé sur GitHub Pages — deviens Administratrice de Bases de Données !</p>
-    <span class="poweredby">⚡ Powered by IA™ 🤖</span>
   </header>
 
   <!-- ════════ ÉCRAN D'ACCUEIL ════════ -->
@@ -207,7 +211,10 @@ footer { text-align:center; margin-top:30px; color:#55527A; font-size:.8rem; }
         <span class="dot" style="background:#FF5F57"></span>
         <span class="dot" style="background:#FEBC2E"></span>
         <span class="dot" style="background:#28C840"></span>
-        <span class="title" id="termTitle">dba-server — terminal</span>
+        <div class="term-tabs">
+          <span class="ttab active" id="tabShell" onclick="switchTab('shell')">💻 dba-server</span>
+          <span class="ttab" id="tabVi" style="display:none" onclick="switchTab('vi')">📝 vi</span>
+        </div>
       </div>
       <div class="term-body" id="termBody">
         <div class="out err">🚨 Serveur du lycée compromis — réinstallation nécessaire. À toi de jouer ! 👇</div>
@@ -216,34 +223,24 @@ footer { text-align:center; margin-top:30px; color:#55527A; font-size:.8rem; }
           <input type="text" id="cmdInput" autocomplete="off" spellcheck="false" />
         </div>
       </div>
+      <div class="vi-pane" id="viPane">
+        <div class="vi-body">
+          <div class="vi-gutter" id="viGutter">~</div>
+          <textarea class="vi-text" id="viText" spellcheck="false"></textarea>
+        </div>
+        <div class="vi-status"><span id="viMode">-- INSERTION --</span><span id="viFile"></span></div>
+        <div class="vi-err" id="viErr"></div>
+        <div class="vi-cmdline">
+          <span class="colon">:</span>
+          <input type="text" id="viCmd" placeholder="wq  (write + quit : sauvegarder et quitter)" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="vi-help">💡 Écris le fichier dans la zone ci-dessus (un VRAI éditeur : tape librement, fais des retours à la ligne !), puis tape <b>wq</b> dans la ligne du bas et appuie sur Entrée — comme le vrai « :wq » de vi.</div>
+      </div>
     </div>
 
     <div class="actions">
       <button class="btn-hint" onclick="useHint()">💡 Indice (-20 pts)</button>
       <button class="btn-reset" onclick="location.reload()">🔄 Recommencer</button>
-    </div>
-  </div>
-
-  <!-- ════════ ÉDITEUR VI ════════ -->
-  <div class="vi-overlay" id="viOverlay">
-    <div class="vi-win">
-      <div class="term-bar">
-        <span class="dot" style="background:#FF5F57"></span>
-        <span class="dot" style="background:#FEBC2E"></span>
-        <span class="dot" style="background:#28C840"></span>
-        <span class="title" id="viTitle">vi — fichier</span>
-      </div>
-      <div class="vi-body">
-        <div class="vi-gutter" id="viGutter">~</div>
-        <textarea class="vi-text" id="viText" spellcheck="false"></textarea>
-      </div>
-      <div class="vi-status"><span id="viMode">-- INSERTION --</span><span id="viFile"></span></div>
-      <div class="vi-err" id="viErr"></div>
-      <div class="vi-cmdline">
-        <span class="colon">:</span>
-        <input type="text" id="viCmd" placeholder="wq  (write + quit : sauvegarder et quitter)" autocomplete="off" spellcheck="false" />
-      </div>
-      <div class="vi-help">💡 Écris le fichier dans la zone ci-dessus (un VRAI éditeur : tape librement, fais des retours à la ligne !), puis tape <b>wq</b> dans la ligne du bas et appuie sur Entrée — comme le vrai « :wq » de vi.</div>
     </div>
   </div>
 
@@ -275,6 +272,23 @@ footer { text-align:center; margin-top:30px; color:#55527A; font-size:.8rem; }
 
 <script>
 // modes : 'shell' ($), 'sql' (prompt dynamique postgres=# / lycee=#), 'editor' (vrai éditeur vi)
+
+// ── Les 30 élèves du lycée ──
+const ELEVES = [
+  ["Alice",17],["Bob",14],["Clara",18],["David",12],["Emma",16],["Farah",15],
+  ["Gabriel",13],["Hugo",11],["Inès",19],["Jules",14],["Karim",16],["Léa",17],
+  ["Maya",12],["Nina",15],["Omar",13],["Paul",10],["Quitterie",18],["Rayan",14],
+  ["Sofia",16],["Tom",11],["Uma",15],["Victor",13],["Wendy",17],["Xavier",12],
+  ["Yasmine",19],["Zoé",16],["Adam",14],["Billie",15],["Camille",18],["Diego",13]
+];
+const CLASSES = ["2nde A","2nde B","2nde C"];
+const ELEVES_OUT = [
+  ["info","  nom       | classe | note "],
+  ["info","------------+--------+------"],
+  ...ELEVES.map(([n, note], i) => ["info", " " + n.padEnd(10) + " | " + CLASSES[i % 3] + " |   " + String(note).padStart(2)]),
+  ["info","(30 lignes)"]
+];
+
 const STEPS = [
   {
     mode:'shell', crumb:"⚙️ Installer",
@@ -381,7 +395,7 @@ const STEPS = [
       ["/backup/sauvegarde.sql","Le fichier de sauvegarde retrouvé : il rejoue tout le SQL (création de la table eleves + toutes les données)."]
     ],
     check:c=>/^psql\s+lycee\s*<\s*\/backup\/sauvegarde\.sql$/.test(c),
-    output:[["info","CREATE TABLE"],["info","INSERT 0 4"],["ok","✅ RESTAURATION RÉUSSIE ! Table eleves recréée, 4 lignes réinjectées. Vérifions que les données sont bien là..."]]
+    output:[["info","CREATE TABLE"],["info","INSERT 0 30"],["ok","✅ RESTAURATION RÉUSSIE ! Table eleves recréée, 30 lignes réinjectées. Vérifions que les données sont bien là..."]]
   },
   {
     mode:'sql', sqlPrompt:'lycee=#', crumb:"🔍 Vérifier",
@@ -396,7 +410,7 @@ const STEPS = [
       ["FROM eleves","« depuis la table eleves » : où chercher."]
     ],
     check:c=>/^select\s+\*\s+from\s+eleves\s*;$/i.test(c),
-    output:[["info","  nom   | classe | note "],["info","--------+--------+------"],["info"," Alice  | 2nde A |   17"],["info"," Bob    | 2nde B |   14"],["info"," Clara  | 2nde A |   18"],["info"," David  | 2nde C |   12"],["info","(4 lignes)"],["ok","✅ TOUTES les données sont de retour ! 🎉 Le lycée est sauvé. Mais on ne va pas s'arrêter là..."]]
+    output:[...ELEVES_OUT,["ok","✅ Les 30 élèves sont de retour ! 🎉 Le lycée est sauvé. Mais on ne va pas s'arrêter là..."]]
   },
   {
     mode:'shell', crumb:"💾 Re-sauvegarder",
@@ -412,7 +426,7 @@ const STEPS = [
       ["/backup/sauvegarde2.sql","Le nouveau fichier de sauvegarde, bien à l'abri dans /backup."]
     ],
     check:c=>/^pg_dump\s+lycee\s*>\s*\/backup\/sauvegarde2\.sql$/.test(c),
-    output:[["info","-- Dump de la base lycee en cours..."],["info","-- Table eleves : 4 lignes exportées"],["ok","✅ Sauvegarde neuve créée ! Maintenant, automatisons tout ça pour ne plus JAMAIS refaire tout à la main..."]]
+    output:[["info","-- Dump de la base lycee en cours..."],["info","-- Table eleves : 30 lignes exportées"],["ok","✅ Sauvegarde neuve créée ! Maintenant, automatisons tout ça pour ne plus JAMAIS refaire tout à la main..."]]
   },
   // ── Script avec le vrai éditeur vi ──
   {
@@ -521,8 +535,6 @@ const STEPS = [
   }
 ];
 
-const TITLES = { shell:'dba-server — terminal', sql:'dba-server — psql', editor:'dba-server — vi' };
-
 let current = 0, score = 0, missionPts = 100;
 const termBody = document.getElementById('termBody');
 const input = document.getElementById('cmdInput');
@@ -543,9 +555,31 @@ function renderAll() {
   renderMission();
 }
 
+function clearTerminal() {
+  termBody.querySelectorAll('.out').forEach(n => n.remove());
+}
+
+function switchTab(which) {
+  const shellTab = document.getElementById('tabShell');
+  const viTab = document.getElementById('tabVi');
+  const viPane = document.getElementById('viPane');
+  if (which === 'vi' && viTab.style.display === 'none') which = 'shell';
+  if (which === 'vi') {
+    viTab.classList.add('active'); shellTab.classList.remove('active');
+    viPane.classList.add('show'); termBody.style.display = 'none';
+    setTimeout(() => viText.focus(), 50);
+  } else {
+    shellTab.classList.add('active'); viTab.classList.remove('active');
+    viPane.classList.remove('show'); termBody.style.display = 'block';
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
 function renderMission() {
   if (current >= STEPS.length) return;
   const st = STEPS[current];
+  clearTerminal();
+  print('info', '— ' + st.title + ' —');
   missionPts = 100;
   document.getElementById('mBadge').textContent = `MISSION ${current + 1}/${STEPS.length}`;
   document.getElementById('mPts').textContent = '⭐ ' + missionPts + ' pts';
@@ -556,7 +590,6 @@ function renderMission() {
   document.getElementById('mCmd').textContent = st.cmd;
   document.getElementById('mExplain').innerHTML = st.explain.map(([k, v]) =>
     `<tr><td class="k">${k}</td><td class="v">${v}</td></tr>`).join('');
-  document.getElementById('termTitle').textContent = TITLES[st.mode];
   if (st.mode === 'sql') {
     promptEl.textContent = st.sqlPrompt;
     promptEl.className = 'prompt sql';
@@ -604,7 +637,7 @@ function missionSuccess(st) {
     current++;
     if (current >= STEPS.length) { showVictory(); }
     else { renderAll(); if (STEPS[current].mode !== 'editor') print('info', '— Nouvelle mission affichée ci-dessus ⬆️ —'); }
-  }, delay + 350);
+  }, delay + 2200);
 }
 
 input.addEventListener('keydown', (e) => {
@@ -630,7 +663,6 @@ input.addEventListener('keydown', (e) => {
 });
 
 // ════ Éditeur vi ════
-const viOverlay = document.getElementById('viOverlay');
 const viText = document.getElementById('viText');
 const viCmd = document.getElementById('viCmd');
 const viErr = document.getElementById('viErr');
@@ -644,14 +676,16 @@ function updateGutter() {
 viText.addEventListener('input', updateGutter);
 
 function openEditor(st) {
-  document.getElementById('viTitle').textContent = 'vi — ' + st.editor.file;
+  const viTab = document.getElementById('tabVi');
+  viTab.textContent = '📝 vi — ' + st.editor.file;
+  viTab.style.display = 'inline-block';
   document.getElementById('viFile').textContent = st.editor.file;
   viText.value = '';
   viErr.textContent = '';
   viCmd.value = '';
   updateGutter();
-  viOverlay.classList.add('show');
-  setTimeout(() => viText.focus(), 100);
+  print('vi', 'vi ' + st.editor.file + ' — ouvert dans le 2e onglet 📝 (clique sur les onglets pour basculer)');
+  switchTab('vi');
 }
 
 viCmd.addEventListener('keydown', (e) => {
@@ -676,10 +710,10 @@ viCmd.addEventListener('keydown', (e) => {
     viErr.textContent = '❌ Le fichier est incomplet (-10 pts) — ' + missing[0].miss;
     return;
   }
-  viOverlay.classList.remove('show');
+  document.getElementById('tabVi').style.display = 'none';
+  switchTab('shell');
   print('vi', `:wq — fichier ${st.editor.file} sauvegardé`);
   missionSuccess(st);
-  setTimeout(() => input.focus(), 600);
 });
 
 function showVictory() {
